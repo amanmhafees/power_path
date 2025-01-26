@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "592752258908",
+    "project_id": "power-path-c1bb4",
+    "storage_bucket": "power-path-c1bb4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:592752258908:android:2c5931ec7d6c7ec9dddb99",
+        "android_client_info": {
+          "package_name": "com.example.power_path"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCo6EHx0oG0XB_k8o8K75zLH-fNd4owLis"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
