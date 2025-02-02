@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:power_path/home.dart';
 
 class EditProfilePage extends StatelessWidget {
-  const EditProfilePage({super.key});
+  final String userName;
+  final String userType;
+
+  const EditProfilePage(
+      {super.key, required this.userName, required this.userType});
 
   @override
   Widget build(BuildContext context) {
@@ -15,11 +19,15 @@ class EditProfilePage extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        HomePage())); // Navigate back to the previous page
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => HomePage(
+                  userName: userName,
+                  userType: userType,
+                ),
+              ),
+            ); // Navigate back to the HomePage with parameters
           },
         ),
       ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:convert'; // for the utf8.encode method
+import 'package:dropdown_search/dropdown_search.dart';
 import 'login.dart';
 
 class AddEmployeePage extends StatefulWidget {
@@ -26,7 +27,7 @@ class _AddEmployeePageState extends State<AddEmployeePage> {
     return digest.toString(); // Convert the hash to a string
   }
 
-  void addEmployee() {
+  void addEmployee() async {
     if (_formKey.currentState!.validate()) {
       final id = int.tryParse(_idController.text);
       final name = _nameController.text;
@@ -80,30 +81,6 @@ class _AddEmployeePageState extends State<AddEmployeePage> {
       ),
       obscureText: obscureText,
       keyboardType: keyboardType,
-      validator: validator,
-    );
-  }
-
-  Widget _buildDropdown({
-    required String label,
-    required IconData icon,
-    required List<String> items,
-    required void Function(String?) onChanged,
-    String? Function(String?)? validator,
-  }) {
-    return DropdownButtonFormField<String>(
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: Icon(icon),
-        border: OutlineInputBorder(),
-      ),
-      items: items.map((String value) {
-        return DropdownMenuItem<String>(
-          value: value,
-          child: Text(value),
-        );
-      }).toList(),
-      onChanged: onChanged,
       validator: validator,
     );
   }
@@ -197,17 +174,35 @@ class _AddEmployeePageState extends State<AddEmployeePage> {
                         },
                       ),
                       const SizedBox(height: 20),
-                      _buildDropdown(
-                        label: 'Designation',
-                        icon: Icons.work,
+                      DropdownSearch<String>(
                         items: const [
                           'Assistant Engineer',
                           'Sub Engineer',
                           'Line Man',
                           'Overseer',
+                          'System Supervisor',
                         ],
-                        onChanged: (value) =>
-                            _selectedDesignation = value ?? '',
+                        dropdownDecoratorProps: DropDownDecoratorProps(
+                          dropdownSearchDecoration: InputDecoration(
+                            labelText: 'Designation',
+                            prefixIcon: Icon(Icons.work),
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                        popupProps: PopupProps.menu(
+                          showSearchBox: true,
+                          searchFieldProps: TextFieldProps(
+                            decoration: InputDecoration(
+                              labelText: 'Search Designation',
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                        ),
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedDesignation = value ?? '';
+                          });
+                        },
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please select a designation';
@@ -216,9 +211,7 @@ class _AddEmployeePageState extends State<AddEmployeePage> {
                         },
                       ),
                       const SizedBox(height: 20),
-                      _buildDropdown(
-                        label: 'Section',
-                        icon: Icons.business,
+                      DropdownSearch<String>(
                         items: const [
                           'Kanjirapally',
                           'Erumely',
@@ -238,7 +231,27 @@ class _AddEmployeePageState extends State<AddEmployeePage> {
                           'Idukki',
                           'Pathanamthitta',
                         ],
-                        onChanged: (value) => _selectedSection = value ?? '',
+                        dropdownDecoratorProps: DropDownDecoratorProps(
+                          dropdownSearchDecoration: InputDecoration(
+                            labelText: 'Section',
+                            prefixIcon: Icon(Icons.business),
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                        popupProps: PopupProps.menu(
+                          showSearchBox: true,
+                          searchFieldProps: TextFieldProps(
+                            decoration: InputDecoration(
+                              labelText: 'Search Section',
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                        ),
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedSection = value ?? '';
+                          });
+                        },
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please select a section';

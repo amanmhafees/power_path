@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:power_path/profile.dart';
 
 class NavBar extends StatelessWidget {
-  const NavBar({super.key});
+  final String userName;
+  final String userType;
+
+  const NavBar({super.key, required this.userName, required this.userType});
 
   @override
   Widget build(BuildContext context) {
@@ -14,9 +17,9 @@ class NavBar extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.blue.shade700,
             ),
-            child: const Text(
+            child: Text(
               'Power Path',
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 24,
               ),
@@ -43,9 +46,12 @@ class NavBar extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => EditProfilePage(),
+                  builder: (context) => EditProfilePage(
+                    userName: userName,
+                    userType: userType,
+                  ),
                 ),
-              ); // Navigate to EditProfilePage
+              ); // Navigate to EditProfilePage with parameters
             },
           ),
         ],

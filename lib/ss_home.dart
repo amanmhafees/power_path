@@ -1,19 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'login.dart'; // Import the LoginPage
+import 'ss_navbar.dart'; // Import the SSNavbar
 
 class SSHomePage extends StatelessWidget {
   final String section;
 
   const SSHomePage({super.key, required this.section});
-
-  void logout(BuildContext context) {
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => const LoginPage()),
-      (Route<dynamic> route) => false,
-    );
-  }
 
   Future<Map<String, List<Map<String, String>>>> fetchEmployees(
       String section) async {
@@ -49,10 +42,15 @@ class SSHomePage extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () => logout(context),
+            onPressed: () => Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const LoginPage()),
+              (Route<dynamic> route) => false,
+            ),
           ),
         ],
       ),
+      drawer: const SSNavbar(), // Use the SSNavbar widget
       body: FutureBuilder<Map<String, List<Map<String, String>>>>(
         future: fetchEmployees(section),
         builder: (context, snapshot) {
