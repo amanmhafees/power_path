@@ -1,0 +1,100 @@
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+class HistoryPage extends StatelessWidget {
+  final String section;
+
+  const HistoryPage({super.key, required this.section});
+
+  Future<List<Map<String, String>>> fetchPastEmployees(String section) async {
+    // Normalize the section value for consistency
+    String normalizedSection = section.trim().toLowerCase();
+    print('Fetching employees for section: $normalizedSection'); // Debugging
+
+    QuerySnapshot snapshot = await FirebaseFirestore.instance
+        .collection('section_history')
+        .where('section', isEqualTo: normalizedSection)
+        .get();
+
+    print('Documents found: ${snapshot.docs.length}'); // Debugging
+
+    if (snapshot.docs.isEmpty) return [];
+
+    List<Map<String, String>> pastEmployees = [];
+
+    for (var doc in snapshot.docs) {
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+
+      String employeeId = data['employee_id'].toString(); // Ensure it's String
+      String newSection = data['new_section'] ?? 'Unknown';
+      String transferDate = (data['transfer_date'] != null)
+          ? (data['transfer_date'] as Timestamp).toDate().toString()
+          : 'No Date';
+
+      print(
+          'Employee: $employeeId, New Section: $newSection, Transfer Date: $transferDate');
+
+      pastEmployees.add({
+        'employee_id': employeeId,
+        'new_section': newSection,
+        'transfer_date': transferDate,
+      });
+    }
+
+    return pastEmployees;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Past Employees'),
+        backgroundColor: Colors.blue.shade700,
+        centerTitle: true,
+        automaticallyImplyLeading: false, // Remove the back button
+        foregroundColor: Colors.white,
+      ),
+      body: FutureBuilder<List<Map<String, String>>>(
+        future: fetchPastEmployees(section),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(
+                child: Text('No past employees found in this section.'));
+          } else {
+            final pastEmployees = snapshot.data!;
+            return ListView(
+              padding: const EdgeInsets.all(16.0),
+              children: pastEmployees.map((employee) {
+                return Card(
+                  margin: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Employee ID: ${employee['employee_id']}',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text('New Section: ${employee['new_section']}'),
+                        Text('Transfer Date: ${employee['transfer_date']}'),
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
+            );
+          }
+        },
+      ),
+    );
+  }
+}

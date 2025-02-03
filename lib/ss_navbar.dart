@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'login.dart'; // Import the LoginPage
+import 'transfer.dart'; // Import the TransferPage
+import 'history.dart'; // Import the HistoryPage
 
 class SSNavbar extends StatelessWidget {
   const SSNavbar({super.key});
@@ -43,7 +45,10 @@ class SSNavbar extends StatelessWidget {
             title: const Text('Transfer'),
             onTap: () {
               Navigator.pop(context);
-              // Navigate to Transfer
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const TransferPage()),
+              );
             },
           ),
           ListTile(
@@ -59,7 +64,15 @@ class SSNavbar extends StatelessWidget {
             title: const Text('Past employees'),
             onTap: () {
               Navigator.pop(context);
-              // Navigate to Past employees
+              // Navigate to HistoryPage with a default section
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const HistoryPage(
+                      section:
+                          "default_section"), // Change this to dynamic section
+                ),
+              );
             },
           ),
           ListTile(

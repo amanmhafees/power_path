@@ -51,7 +51,7 @@ class _HomePageState extends State<HomePage> {
       final QuerySnapshot snapshot =
           await FirebaseFirestore.instance.collection('sections').get();
       final List<String> fetchedSections =
-          snapshot.docs.map((doc) => doc['name'] as String).toList();
+          snapshot.docs.map((doc) => doc['section_name'] as String).toList();
       setState(() {
         sections = fetchedSections;
         filteredSections = sections;
