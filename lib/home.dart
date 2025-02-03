@@ -1,6 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'engineer_navbar.dart'; // Import the EngineerNavbar
 import 'workers_navbar.dart'; // Import the WorkerNavbar
+import 'transformers.dart'; // Import the TransformersPage
+
+// Define a custom color scheme
+class AppColors {
+  static const Color primaryBlue = Color(0xFF2196F3);
+  static const Color lightBlue = Color(0xFFE3F2FD);
+  static const Color darkBlue = Color(0xFF1976D2);
+  static const Color grey = Color(0xFFF5F5F5);
+  static const Color textDark = Color(0xFF333333);
+}
 
 class HomePage extends StatefulWidget {
   final String userName;
@@ -14,32 +25,46 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final TextEditingController _searchController = TextEditingController();
-  final List<String> sections = [
-    'Erumely',
-    'Kanjirapally',
-    'Mundakkayam',
-  ];
+  List<String> sections = [];
   List<String> filteredSections = [];
 
   @override
   void initState() {
     super.initState();
-    filteredSections = sections;
-    _searchController.addListener(_filterSections);
+    _fetchSections();
+    _searchController.addListener(() {
+      _filterSections(_searchController.text);
+    });
   }
 
   @override
   void dispose() {
-    _searchController.removeListener(_filterSections);
+    _searchController.removeListener(() {
+      _filterSections(_searchController.text);
+    });
     _searchController.dispose();
     super.dispose();
   }
 
-  void _filterSections() {
-    final query = _searchController.text.toLowerCase();
+  Future<void> _fetchSections() async {
+    try {
+      final QuerySnapshot snapshot =
+          await FirebaseFirestore.instance.collection('sections').get();
+      final List<String> fetchedSections =
+          snapshot.docs.map((doc) => doc['name'] as String).toList();
+      setState(() {
+        sections = fetchedSections;
+        filteredSections = sections;
+      });
+    } catch (e) {
+      print('Error fetching sections: $e');
+    }
+  }
+
+  void _filterSections(String query) {
     setState(() {
       filteredSections = sections.where((section) {
-        return section.toLowerCase().contains(query);
+        return section.toLowerCase().contains(query.toLowerCase());
       }).toList();
     });
   }
@@ -47,53 +72,108 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Home Page'),
-        backgroundColor: Colors.blue.shade700,
+        title: const Text(
+          'Sections',
+          style: TextStyle(
+            fontWeight: FontWeight.w500,
+            color: AppColors.textDark,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0,
         centerTitle: true,
-        foregroundColor: Colors.white,
       ),
       drawer: widget.userType == 'engineer'
           ? EngineerNavbar(userName: widget.userName)
           : WorkerNavbar(userName: widget.userName),
-      body: GestureDetector(
-        onTap: () {
-          FocusScope.of(context).unfocus(); // Hide the keyboard
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              TextField(
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: TextField(
                 controller: _searchController,
-                decoration: const InputDecoration(
-                  labelText: 'Search Sections',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.search),
+                decoration: InputDecoration(
+                  hintText: 'Search Sections',
+                  hintStyle: TextStyle(color: Colors.grey[400]),
+                  prefixIcon:
+                      const Icon(Icons.search, color: AppColors.primaryBlue),
+                  filled: true,
+                  fillColor: AppColors.grey,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 ),
+                onChanged: _filterSections,
               ),
-              const SizedBox(height: 20),
-              const Text(
-                'Sections',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: filteredSections.length,
-                  itemBuilder: (context, index) {
-                    return Card(
-                      child: ListTile(
-                        title: Text(filteredSections[index]),
+            ),
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                itemCount: filteredSections.length,
+                itemBuilder: (context, index) {
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const TransformersPage(),
+                          ),
+                        );
+                      },
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: AppColors.lightBlue,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Icon(
+                                Icons.location_on,
+                                color: AppColors.primaryBlue,
+                                size: 20,
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Text(
+                                filteredSections[index],
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.textDark,
+                                ),
+                              ),
+                            ),
+                            const Icon(
+                              Icons.arrow_forward_ios,
+                              color: AppColors.primaryBlue,
+                              size: 14,
+                            ),
+                          ],
+                        ),
                       ),
-                    );
-                  },
-                ),
+                    ),
+                  );
+                },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
