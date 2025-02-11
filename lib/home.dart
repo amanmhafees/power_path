@@ -16,8 +16,13 @@ class AppColors {
 class HomePage extends StatefulWidget {
   final String userName;
   final String userType;
+  final String section;
 
-  const HomePage({super.key, required this.userName, required this.userType});
+  const HomePage(
+      {super.key,
+      required this.userName,
+      required this.userType,
+      required this.section});
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -85,8 +90,8 @@ class _HomePageState extends State<HomePage> {
         elevation: 0,
         centerTitle: true,
       ),
-      drawer: widget.userType == 'engineer'
-          ? EngineerNavbar(userName: widget.userName)
+      drawer: widget.userType.toLowerCase().contains('engineer')
+          ? EngineerNavbar(userName: widget.userName, section: widget.section)
           : WorkerNavbar(userName: widget.userName),
       body: SafeArea(
         child: Column(

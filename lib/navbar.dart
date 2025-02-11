@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+/*import 'package:flutter/material.dart';
 import 'package:power_path/profile.dart';
 
 class NavBar extends StatelessWidget {
@@ -59,3 +59,4 @@ class NavBar extends StatelessWidget {
     );
   }
 }
+*/

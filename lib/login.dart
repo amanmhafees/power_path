@@ -101,9 +101,11 @@ class _LoginPageState extends State<LoginPage> {
                   MaterialPageRoute(
                       builder: (context) => HomePage(
                             userName: name,
-                            userType: designation == 'Engineer'
-                                ? 'engineer'
-                                : 'worker',
+                            userType:
+                                designation.toLowerCase().contains('engineer')
+                                    ? 'engineer'
+                                    : 'worker',
+                            section: section,
                           )),
                 );
               }
