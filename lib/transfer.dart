@@ -140,90 +140,99 @@ class _TransferPageState extends State<TransferPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Transfer Employee'),
-        automaticallyImplyLeading: false, // Disable the back button
-        leading: Builder(
-          builder: (BuildContext context) {
-            return IconButton(
-              icon: const Icon(Icons.menu),
-              onPressed: () {
-                Scaffold.of(context).openDrawer();
-              },
-            );
-          },
+    return WillPopScope(
+      onWillPop: () async {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Back button is disabled. Use the menu.')),
+        );
+        return false; // Prevent the back button from working
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Transfer Employee'),
+          automaticallyImplyLeading: false, // Disable the back button
+          leading: Builder(
+            builder: (BuildContext context) {
+              return IconButton(
+                icon: const Icon(Icons.menu),
+                onPressed: () {
+                  Scaffold.of(context).openDrawer();
+                },
+              );
+            },
+          ),
         ),
-      ),
-      drawer: SSNavbar(
-          section: widget.supervisorSection), // Pass the section to SSNavbar
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            DropdownSearch<Map<String, dynamic>>(
-              items: employees,
-              itemAsString: (Map<String, dynamic> employee) =>
-                  "${employee['name']} (ID: ${employee['id']})",
-              selectedItem: selectedEmployee,
-              dropdownDecoratorProps: const DropDownDecoratorProps(
-                dropdownSearchDecoration: InputDecoration(
-                  labelText: 'Select Employee',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              popupProps: PopupProps.menu(
-                showSearchBox: true,
-                searchFieldProps: TextFieldProps(
-                  decoration: const InputDecoration(
-                    labelText: 'Search by name or ID',
+        drawer: SSNavbar(
+            section: widget.supervisorSection), // Pass the section to SSNavbar
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              DropdownSearch<Map<String, dynamic>>(
+                items: employees,
+                itemAsString: (Map<String, dynamic> employee) =>
+                    "${employee['name']} (ID: ${employee['id']})",
+                selectedItem: selectedEmployee,
+                dropdownDecoratorProps: const DropDownDecoratorProps(
+                  dropdownSearchDecoration: InputDecoration(
+                    labelText: 'Select Employee',
                     border: OutlineInputBorder(),
                   ),
                 ),
-                itemBuilder: (context, item, isSelected) {
-                  return ListTile(
-                    title: Text("${item['name']} (ID: ${item['id']})"),
-                  );
+                popupProps: PopupProps.menu(
+                  showSearchBox: true,
+                  searchFieldProps: TextFieldProps(
+                    decoration: const InputDecoration(
+                      labelText: 'Search by name or ID',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  itemBuilder: (context, item, isSelected) {
+                    return ListTile(
+                      title: Text("${item['name']} (ID: ${item['id']})"),
+                    );
+                  },
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    selectedEmployee = value;
+                  });
+                },
+                filterFn: (employee, filter) {
+                  return employee['name']
+                          .toString()
+                          .toLowerCase()
+                          .contains(filter.toLowerCase()) ||
+                      employee['id'].toString().contains(filter);
                 },
               ),
-              onChanged: (value) {
-                setState(() {
-                  selectedEmployee = value;
-                });
-              },
-              filterFn: (employee, filter) {
-                return employee['name']
-                        .toString()
-                        .toLowerCase()
-                        .contains(filter.toLowerCase()) ||
-                    employee['id'].toString().contains(filter);
-              },
-            ),
-            const SizedBox(height: 20),
-            DropdownSearch<String>(
-              items: sections,
-              selectedItem: selectedNewSection,
-              dropdownDecoratorProps: const DropDownDecoratorProps(
-                dropdownSearchDecoration: InputDecoration(
-                  labelText: 'New Section',
-                  border: OutlineInputBorder(),
+              const SizedBox(height: 20),
+              DropdownSearch<String>(
+                items: sections,
+                selectedItem: selectedNewSection,
+                dropdownDecoratorProps: const DropDownDecoratorProps(
+                  dropdownSearchDecoration: InputDecoration(
+                    labelText: 'New Section',
+                    border: OutlineInputBorder(),
+                  ),
                 ),
+                popupProps: const PopupProps.menu(
+                  showSearchBox: true,
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    selectedNewSection = value;
+                  });
+                },
               ),
-              popupProps: const PopupProps.menu(
-                showSearchBox: true,
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _transferEmployee,
+                child: const Text('Transfer'),
               ),
-              onChanged: (value) {
-                setState(() {
-                  selectedNewSection = value;
-                });
-              },
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _transferEmployee,
-              child: const Text('Transfer'),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
