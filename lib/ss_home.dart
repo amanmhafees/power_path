@@ -3,10 +3,39 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'login.dart'; // Import the LoginPage
 import 'ss_navbar.dart'; // Import the SSNavbar
 
-class SSHomePage extends StatelessWidget {
+class SSHomePage extends StatefulWidget {
   final String section;
 
   const SSHomePage({super.key, required this.section});
+
+  @override
+  _SSHomePageState createState() => _SSHomePageState();
+}
+
+class _SSHomePageState extends State<SSHomePage> with WidgetsBindingObserver {
+  Future<Map<String, List<Map<String, String>>>>? _futureEmployees;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _futureEmployees = fetchEmployees(widget.section);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      setState(() {
+        _futureEmployees = fetchEmployees(widget.section);
+      });
+    }
+  }
 
   Future<Map<String, List<Map<String, String>>>> fetchEmployees(
       String section) async {
@@ -50,9 +79,9 @@ class SSHomePage extends StatelessWidget {
           ),
         ],
       ),
-      drawer: const SSNavbar(), // Use the SSNavbar widget
+      drawer: SSNavbar(section: widget.section), // Pass the section to SSNavbar
       body: FutureBuilder<Map<String, List<Map<String, String>>>>(
-        future: fetchEmployees(section),
+        future: _futureEmployees,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -83,8 +112,10 @@ class SSHomePage extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 8),
-                        ...employees.map((employee) {
-                          return Text(employee['name']!);
+                        ...employees.asMap().entries.map((entry) {
+                          final index = entry.key + 1;
+                          final employee = entry.value;
+                          return Text('$index. ${employee['name']!}');
                         }).toList(),
                       ],
                     ),

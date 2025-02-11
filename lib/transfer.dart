@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_search/dropdown_search.dart';
+import 'ss_navbar.dart';
 
 class TransferPage extends StatefulWidget {
-  const TransferPage({super.key});
+  final String supervisorSection;
+
+  const TransferPage({super.key, required this.supervisorSection});
 
   @override
   _TransferPageState createState() => _TransferPageState();
@@ -40,8 +43,10 @@ class _TransferPageState extends State<TransferPage> {
 
   Future<void> _fetchEmployees() async {
     try {
-      final QuerySnapshot snapshot =
-          await FirebaseFirestore.instance.collection('employees').get();
+      final QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection('employees')
+          .where('section', isEqualTo: widget.supervisorSection)
+          .get();
       final List<Map<String, dynamic>> fetchedEmployees = snapshot.docs
           .map((doc) => {
                 'id': doc[
@@ -68,6 +73,24 @@ class _TransferPageState extends State<TransferPage> {
     }
 
     try {
+      // Fetch the section document based on the selected section name
+      final QuerySnapshot sectionSnapshot = await FirebaseFirestore.instance
+          .collection('sections')
+          .where('section_name', isEqualTo: selectedNewSection)
+          .limit(1)
+          .get();
+
+      if (sectionSnapshot.docs.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('New section not found')),
+        );
+        return;
+      }
+
+      final DocumentSnapshot sectionDoc = sectionSnapshot.docs.first;
+      final String newSectionId =
+          sectionDoc['id']; // Get the id value inside the document
+
       final QuerySnapshot employeeSnapshot = await FirebaseFirestore.instance
           .collection('employees')
           .where('id', isEqualTo: selectedEmployee?['id'])
@@ -84,17 +107,17 @@ class _TransferPageState extends State<TransferPage> {
       final String currentSection = employeeDoc['section'];
       final DateTime now = DateTime.now();
 
-      // Update the employee's section
+      // Update the employee's section with the new section ID
       await FirebaseFirestore.instance
           .collection('employees')
           .doc(employeeDoc.id)
-          .update({'section': selectedNewSection});
+          .update({'section': newSectionId});
 
       // Add to section history
       await FirebaseFirestore.instance.collection('section_history').add({
         'employee_id': selectedEmployee?['id'],
         'section': currentSection,
-        'new_section': selectedNewSection,
+        'new_section': newSectionId,
         'transfer_date': now,
       });
 
@@ -102,11 +125,12 @@ class _TransferPageState extends State<TransferPage> {
         const SnackBar(content: Text('Employee transferred successfully')),
       );
 
-      // Clear the selection
+      // Clear the selection and refresh the employee list
       setState(() {
         selectedEmployee = null;
         selectedNewSection = null;
       });
+      _fetchEmployees(); // Refresh the employee list
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $e')),
@@ -119,7 +143,20 @@ class _TransferPageState extends State<TransferPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Transfer Employee'),
+        automaticallyImplyLeading: false, // Disable the back button
+        leading: Builder(
+          builder: (BuildContext context) {
+            return IconButton(
+              icon: const Icon(Icons.menu),
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+            );
+          },
+        ),
       ),
+      drawer: SSNavbar(
+          section: widget.supervisorSection), // Pass the section to SSNavbar
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

@@ -75,8 +75,7 @@ class _LoginPageState extends State<LoginPage> {
         FirebaseFirestore.instance
             .collection('employees')
             .where('id',
-                isEqualTo: int.tryParse(
-                    id)) // Employee ID is likely stored as a number
+                isEqualTo: id) // Employee ID is likely stored as a number
             .limit(1)
             .get()
             .then((snapshot) {

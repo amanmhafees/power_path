@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'ss_navbar.dart';
 
 class HistoryPage extends StatelessWidget {
   final String section;
@@ -51,9 +52,10 @@ class HistoryPage extends StatelessWidget {
         title: const Text('Past Employees'),
         backgroundColor: Colors.blue.shade700,
         centerTitle: true,
-        automaticallyImplyLeading: false, // Remove the back button
+        automaticallyImplyLeading: true, // Ensure the back button is shown
         foregroundColor: Colors.white,
       ),
+      drawer: SSNavbar(section: section), // Pass the section to SSNavbar
       body: FutureBuilder<List<Map<String, String>>>(
         future: fetchPastEmployees(section),
         builder: (context, snapshot) {
