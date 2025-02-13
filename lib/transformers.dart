@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'transformer_detail.dart'; // Import the TransformerDetailPage
 
 // Define a custom color scheme
 class AppColors {
@@ -11,7 +13,9 @@ class AppColors {
 }
 
 class TransformersPage extends StatefulWidget {
-  const TransformersPage({super.key});
+  final String section;
+
+  const TransformersPage({super.key, required this.section});
 
   @override
   _TransformersPageState createState() => _TransformersPageState();
@@ -19,21 +23,44 @@ class TransformersPage extends StatefulWidget {
 
 class _TransformersPageState extends State<TransformersPage> {
   final TextEditingController _searchController = TextEditingController();
-  List<String> transformers =
-      List.generate(10, (index) => 'Transformer ${index + 1}');
-  List<String> filteredTransformers = [];
+  List<Map<String, dynamic>> transformers = [];
+  List<Map<String, dynamic>> filteredTransformers = [];
 
   @override
   void initState() {
     super.initState();
-    filteredTransformers = transformers;
+    _fetchTransformers();
+  }
+
+  Future<void> _fetchTransformers() async {
+    try {
+      final QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection('transformers')
+          .where('section', isEqualTo: widget.section)
+          .get();
+      final List<Map<String, dynamic>> fetchedTransformers = snapshot.docs
+          .map((doc) => {
+                'id': doc.id,
+                'name': doc['name'],
+                'map_url': doc['map_url'],
+                'status': doc['status'],
+                'section': doc['section'],
+              })
+          .toList();
+      setState(() {
+        transformers = fetchedTransformers;
+        filteredTransformers = transformers;
+      });
+    } catch (e) {
+      print('Error fetching transformers: $e');
+    }
   }
 
   void _filterTransformers(String query) {
     setState(() {
       filteredTransformers = transformers
           .where((transformer) =>
-              transformer.toLowerCase().contains(query.toLowerCase()))
+              transformer['name'].toLowerCase().contains(query.toLowerCase()))
           .toList();
     });
   }
@@ -50,14 +77,6 @@ class _TransformersPageState extends State<TransformersPage> {
             color: AppColors.textDark,
           ),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.exit_to_app, color: AppColors.textDark),
-            onPressed: () async {
-              await FirebaseAuth.instance.signOut();
-            },
-          ),
-        ],
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
@@ -91,6 +110,7 @@ class _TransformersPageState extends State<TransformersPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
                 itemCount: filteredTransformers.length,
                 itemBuilder: (context, index) {
+                  final transformer = filteredTransformers[index];
                   return Container(
                     margin: const EdgeInsets.only(bottom: 16),
                     child: InkWell(
@@ -99,7 +119,7 @@ class _TransformersPageState extends State<TransformersPage> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => TransformerDetailPage(
-                              transformerName: filteredTransformers[index],
+                              transformer: transformer,
                             ),
                           ),
                         );
@@ -128,7 +148,7 @@ class _TransformersPageState extends State<TransformersPage> {
                             const SizedBox(width: 16),
                             Expanded(
                               child: Text(
-                                filteredTransformers[index],
+                                transformer['name'],
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
@@ -150,256 +170,6 @@ class _TransformersPageState extends State<TransformersPage> {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class TransformerDetailPage extends StatefulWidget {
-  final String transformerName;
-
-  const TransformerDetailPage({Key? key, required this.transformerName})
-      : super(key: key);
-
-  @override
-  State<TransformerDetailPage> createState() => _TransformerDetailPageState();
-}
-
-class _TransformerDetailPageState extends State<TransformerDetailPage> {
-  final TextEditingController _faultLogController = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text(
-          widget.transformerName,
-          style: const TextStyle(
-            fontWeight: FontWeight.w500,
-            color: AppColors.textDark,
-          ),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-        iconTheme: const IconThemeData(color: AppColors.textDark),
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Transformer Header
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: AppColors.lightBlue,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.electric_bolt,
-                        color: AppColors.primaryBlue,
-                        size: 32,
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              widget.transformerName,
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.textDark,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'ID: ${widget.transformerName.replaceAll(RegExp(r'[^0-9]'), '')}',
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Map Section
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppColors.lightBlue,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.map,
-                        color: AppColors.primaryBlue,
-                        size: 32,
-                      ),
-                      const SizedBox(width: 16),
-                      const Text(
-                        'Map',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textDark,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Image Section
-                Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey[300]!),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text(
-                          'Transformer Image',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textDark,
-                          ),
-                        ),
-                      ),
-                      Container(
-                        height: 200,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[100],
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.image,
-                                size: 48,
-                                color: Colors.grey[400],
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Image placeholder',
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: ElevatedButton(
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                    'Image upload functionality coming soon'),
-                              ),
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primaryBlue,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          child: const Text('Upload Image'),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Fault Log Section
-                Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey[300]!),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text(
-                          'Fault Log',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textDark,
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: TextField(
-                          controller: _faultLogController,
-                          maxLines: 8,
-                          decoration: InputDecoration(
-                            hintText: 'Enter fault log notes here...',
-                            hintStyle: TextStyle(color: Colors.grey[400]),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide(color: Colors.grey[300]!),
-                            ),
-                            filled: true,
-                            fillColor: Colors.grey[50],
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: ElevatedButton(
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Fault log saved successfully'),
-                              ),
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primaryBlue,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          child: const Text('Save Log'),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
         ),
       ),
     );

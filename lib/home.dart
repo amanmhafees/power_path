@@ -30,8 +30,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final TextEditingController _searchController = TextEditingController();
-  List<String> sections = [];
-  List<String> filteredSections = [];
+  List<Map<String, dynamic>> sections = [];
+  List<Map<String, dynamic>> filteredSections = [];
 
   @override
   void initState() {
@@ -55,8 +55,12 @@ class _HomePageState extends State<HomePage> {
     try {
       final QuerySnapshot snapshot =
           await FirebaseFirestore.instance.collection('sections').get();
-      final List<String> fetchedSections =
-          snapshot.docs.map((doc) => doc['section_name'] as String).toList();
+      final List<Map<String, dynamic>> fetchedSections = snapshot.docs
+          .map((doc) => {
+                'id': doc['id'],
+                'name': doc['section_name'],
+              })
+          .toList();
       setState(() {
         sections = fetchedSections;
         filteredSections = sections;
@@ -69,7 +73,7 @@ class _HomePageState extends State<HomePage> {
   void _filterSections(String query) {
     setState(() {
       filteredSections = sections.where((section) {
-        return section.toLowerCase().contains(query.toLowerCase());
+        return section['name'].toLowerCase().contains(query.toLowerCase());
       }).toList();
     });
   }
@@ -122,6 +126,7 @@ class _HomePageState extends State<HomePage> {
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
                 itemCount: filteredSections.length,
                 itemBuilder: (context, index) {
+                  final section = filteredSections[index];
                   return Container(
                     margin: const EdgeInsets.only(bottom: 16),
                     child: InkWell(
@@ -129,7 +134,9 @@ class _HomePageState extends State<HomePage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const TransformersPage(),
+                            builder: (context) => TransformersPage(
+                              section: section['id'],
+                            ),
                           ),
                         );
                       },
@@ -157,7 +164,7 @@ class _HomePageState extends State<HomePage> {
                             const SizedBox(width: 16),
                             Expanded(
                               child: Text(
-                                filteredSections[index],
+                                section['name'],
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,

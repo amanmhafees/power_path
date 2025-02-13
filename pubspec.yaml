@@ -32,10 +32,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  dropdown_search: ^5.0.2
+  dropdown_search: ^5.0.6
   firebase_auth: ^5.4.1
   firebase_core: ^3.10.1
   crypto: ^3.0.1
+  url_launcher: ^6.3.1
   
 
   # The following adds the Cupertino Icons font to your application.
