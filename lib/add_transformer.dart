@@ -1,7 +1,9 @@
-// Sample code for a widget to show the new transformer page
-
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'engineer_navbar.dart'; // Import the EngineerNavbar
 
 class AddTransformer extends StatefulWidget {
@@ -19,6 +21,7 @@ class _AddTransformerState extends State<AddTransformer> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _mapUrlController = TextEditingController();
   String? _selectedStatus;
+  File? _selectedImage;
 
   final List<String> _statusOptions = [
     'Active',
@@ -31,19 +34,27 @@ class _AddTransformerState extends State<AddTransformer> {
     final String mapUrl = _mapUrlController.text.trim();
     final String? status = _selectedStatus;
 
-    if (name.isEmpty || mapUrl.isEmpty || status == null) {
+    if (name.isEmpty ||
+        mapUrl.isEmpty ||
+        status == null ||
+        _selectedImage == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill in all fields')),
+        const SnackBar(
+            content: Text('Please fill in all fields and select an image')),
       );
       return;
     }
 
     try {
+      // Upload image to Cloudinary and get the download URL
+      final String imageUrl = await _uploadImage(name);
+
       await FirebaseFirestore.instance.collection('transformers').add({
         'name': name,
         'map_url': mapUrl,
         'status': status,
         'section': widget.section,
+        'image_url': imageUrl,
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -55,11 +66,49 @@ class _AddTransformerState extends State<AddTransformer> {
       _mapUrlController.clear();
       setState(() {
         _selectedStatus = null;
+        _selectedImage = null;
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $e')),
       );
+    }
+  }
+
+  Future<String> _uploadImage(String transformerName) async {
+    final String cloudName = 'dkzaen9x5';
+    final String uploadPreset = 'powerpath';
+    final Uri apiUrl =
+        Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/image/upload');
+
+    final request = http.MultipartRequest('POST', apiUrl)
+      ..fields['upload_preset'] = uploadPreset
+      ..fields['public_id'] = transformerName.replaceAll(
+          ' ', '_') // Use transformer name as the public ID
+      ..files
+          .add(await http.MultipartFile.fromPath('file', _selectedImage!.path));
+
+    final response = await request.send();
+
+    if (response.statusCode == 200) {
+      final responseData = await response.stream.toBytes();
+      final responseString = String.fromCharCodes(responseData);
+      final responseJson = json.decode(responseString);
+      return responseJson['secure_url'];
+    } else {
+      final responseData = await response.stream.bytesToString();
+      throw Exception('Failed to upload image: ${responseData}');
+    }
+  }
+
+  Future<void> _pickImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+    if (image != null) {
+      setState(() {
+        _selectedImage = File(image.path);
+      });
     }
   }
 
@@ -117,6 +166,19 @@ class _AddTransformerState extends State<AddTransformer> {
                 border: OutlineInputBorder(),
               ),
             ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _pickImage,
+              child: const Text('Pick Image'),
+            ),
+            const SizedBox(height: 16),
+            if (_selectedImage != null)
+              Image.file(
+                _selectedImage!,
+                height: 200,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _addTransformer,

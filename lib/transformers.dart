@@ -44,6 +44,7 @@ class _TransformersPageState extends State<TransformersPage> {
       final List<Map<String, dynamic>> fetchedTransformers = snapshot.docs
           .map((doc) => {
                 'id': doc.id,
+                'image_url': doc['image_url'],
                 'name': doc['name'],
                 'map_url': doc['map_url'],
                 'status': doc['status'],

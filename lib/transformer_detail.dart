@@ -168,6 +168,7 @@ class _TransformerDetailPageState extends State<TransformerDetailPage> {
   @override
   Widget build(BuildContext context) {
     final String mapsUrl = widget.transformer['map_url'];
+    final String? imageUrl = widget.transformer['image_url'];
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -220,23 +221,50 @@ class _TransformerDetailPageState extends State<TransformerDetailPage> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.image,
-                                size: 48,
-                                color: Colors.grey[400],
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Image placeholder',
-                                style: TextStyle(
-                                  color: Colors.grey[600],
+                          child: imageUrl != null
+                              ? Image.network(
+                                  imageUrl,
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.error,
+                                          size: 48,
+                                          color: Colors.red,
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          'Image not got',
+                                          style: TextStyle(
+                                            color: Colors.red,
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                )
+                              : Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.image,
+                                      size: 48,
+                                      color: Colors.grey[400],
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'URL not present',
+                                      style: TextStyle(
+                                        color: Colors.grey[600],
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                            ],
-                          ),
                         ),
                       ),
                     ],
