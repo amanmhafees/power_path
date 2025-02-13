@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'login.dart'; // Import the LoginPage
 import 'add_transformer.dart';
 import 'home.dart'; // Import the HomePage
+import 'schedule_maintenance.dart'; // Import the ScheduleMaintenancePage
 
 class EngineerNavbar extends StatelessWidget {
   final String userName;
@@ -78,6 +79,22 @@ class EngineerNavbar extends StatelessWidget {
                   builder: (context) => HomePage(
                     userName: userName,
                     userType: 'engineer', // Assuming the userType is 'engineer'
+                    section: section,
+                  ),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.schedule),
+            title: const Text('Schedule Maintenance'),
+            onTap: () {
+              // Navigate to Schedule Maintenance
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ScheduleMaintenancePage(
+                    userName: userName,
                     section: section,
                   ),
                 ),
