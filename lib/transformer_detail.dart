@@ -81,6 +81,7 @@ class _TransformerDetailPageState extends State<TransformerDetailPage> {
     });
   }
 
+//redirecting to maps
   void _launchMapsUrl(String mapsUrl) async {
     final Uri url = Uri.parse(mapsUrl);
     if (await canLaunchUrl(url)) {
@@ -204,14 +205,6 @@ class _TransformerDetailPageState extends State<TransformerDetailPage> {
                     children: [
                       Padding(
                         padding: const EdgeInsets.all(16.0),
-                        child: Text(
-                          'Transformer Image',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textDark,
-                          ),
-                        ),
                       ),
                       Container(
                         height: 200,
