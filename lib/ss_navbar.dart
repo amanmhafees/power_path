@@ -3,19 +3,22 @@ import 'login.dart'; // Import the LoginPage
 import 'transfer.dart'; // Import the TransferPage
 import 'history.dart'; // Import the HistoryPage
 import 'ss_home.dart'; // Import the SSHomePage
+import 'package:shared_preferences/shared_preferences.dart';
+
+Future<void> logout(BuildContext context) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.clear();
+  Navigator.pushAndRemoveUntil(
+    context,
+    MaterialPageRoute(builder: (context) => const LoginPage()),
+    (route) => false,
+  );
+}
 
 class SSNavbar extends StatelessWidget {
   final String section;
 
   const SSNavbar({super.key, required this.section});
-
-  void logout(BuildContext context) {
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => const LoginPage()),
-      (Route<dynamic> route) => false,
-    );
-  }
 
   @override
   Widget build(BuildContext context) {

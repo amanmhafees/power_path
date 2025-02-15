@@ -3,6 +3,17 @@ import 'login.dart'; // Import the LoginPage
 import 'add_transformer.dart';
 import 'home.dart'; // Import the HomePage
 import 'schedule_maintenance.dart'; // Import the ScheduleMaintenancePage
+import 'package:shared_preferences/shared_preferences.dart';
+
+Future<void> logout(BuildContext context) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.clear();
+  Navigator.pushAndRemoveUntil(
+    context,
+    MaterialPageRoute(builder: (context) => const LoginPage()),
+    (route) => false,
+  );
+}
 
 class EngineerNavbar extends StatelessWidget {
   final String userName;
@@ -10,14 +21,6 @@ class EngineerNavbar extends StatelessWidget {
 
   const EngineerNavbar(
       {super.key, required this.userName, required this.section});
-
-  void logout(BuildContext context) {
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => const LoginPage()),
-      (Route<dynamic> route) => false,
-    );
-  }
 
   @override
   Widget build(BuildContext context) {

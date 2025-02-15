@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:convert'; // for the utf8.encode method
+import 'package:shared_preferences/shared_preferences.dart';
 import 'home.dart';
 import 'admin_home.dart'; // Import the AdminHomePage
 import 'ss_home.dart'; // Import the SSHomePage
@@ -44,13 +45,22 @@ class _LoginPageState extends State<LoginPage> {
             .where('adminid', isEqualTo: id)
             .limit(1)
             .get()
-            .then((snapshot) {
+            .then((snapshot) async {
           if (snapshot.docs.isNotEmpty) {
             final adminDoc = snapshot.docs.first;
             final storedHashedPassword = adminDoc['password'];
             final inputHashedPassword = password;
 
             if (storedHashedPassword == inputHashedPassword) {
+              // Save login state
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.setBool('isLoggedIn', true);
+              await prefs.setBool('isAdmin', true);
+              await prefs.setString('userId', id);
+              await prefs.setString('userName', adminDoc['name']);
+              await prefs.setString(
+                  'section', 'admin'); // Assuming admin section
+
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => const AdminHomePage()),
@@ -78,7 +88,7 @@ class _LoginPageState extends State<LoginPage> {
                 isEqualTo: id) // Employee ID is likely stored as a number
             .limit(1)
             .get()
-            .then((snapshot) {
+            .then((snapshot) async {
           if (snapshot.docs.isNotEmpty) {
             final employeeDoc = snapshot.docs.first;
             final storedHashedPassword = employeeDoc['password'];
@@ -88,6 +98,14 @@ class _LoginPageState extends State<LoginPage> {
               final designation = employeeDoc['designation'];
               final section = employeeDoc['section'];
               final name = employeeDoc['name'];
+
+              // Save login state
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.setBool('isLoggedIn', true);
+              await prefs.setBool('isAdmin', false);
+              await prefs.setString('userId', id);
+              await prefs.setString('userName', name);
+              await prefs.setString('section', section);
 
               if (designation == 'System Supervisor') {
                 Navigator.pushReplacement(

@@ -4,6 +4,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert'; // Import the dart:convert package
+import 'package:shared_preferences/shared_preferences.dart'; // Import shared_preferences
 
 // Define a custom color scheme
 class AppColors {
@@ -81,7 +82,7 @@ class _TransformerDetailPageState extends State<TransformerDetailPage> {
     });
   }
 
-//redirecting to maps
+  //redirecting to maps
   void _launchMapsUrl(String mapsUrl) async {
     final Uri url = Uri.parse(mapsUrl);
     if (await canLaunchUrl(url)) {
@@ -118,13 +119,17 @@ class _TransformerDetailPageState extends State<TransformerDetailPage> {
   Future<void> _addNote() async {
     final String note = _noteController.text.trim();
     if (note.isNotEmpty) {
+      final prefs = await SharedPreferences.getInstance();
+      final String userName = prefs.getString('userName') ?? 'Unknown User';
+      final String section = prefs.getString('section') ?? 'Unknown Section';
+
       await notesCollection.add({
         'note': note,
-        'user': 'User Name', // Replace with the actual user name
+        'user': userName,
         'timestamp': FieldValue.serverTimestamp(),
       });
       _noteController.clear();
-      _sendPushNotification(note);
+      _sendPushNotification(note, userName, section);
     }
   }
 
@@ -132,12 +137,11 @@ class _TransformerDetailPageState extends State<TransformerDetailPage> {
     await notesCollection.doc(noteId).delete();
   }
 
-  Future<void> _sendPushNotification(String note) async {
+  Future<void> _sendPushNotification(
+      String note, String userName, String section) async {
     // Replace with your FCM server key
     const String serverKey = 'YOUR_FCM_SERVER_KEY';
     final String transformerName = widget.transformer['name'];
-    final String section = widget.transformer['section'];
-    final String userName = 'User Name'; // Replace with the actual user name
 
     final Uri url = Uri.parse('https://fcm.googleapis.com/fcm/send');
     final Map<String, dynamic> body = {

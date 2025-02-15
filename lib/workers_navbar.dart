@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'login.dart'; // Import the LoginPage
+import 'package:shared_preferences/shared_preferences.dart';
+
+Future<void> logout(BuildContext context) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.clear();
+  Navigator.pushAndRemoveUntil(
+    context,
+    MaterialPageRoute(builder: (context) => const LoginPage()),
+    (route) => false,
+  );
+}
 
 class WorkerNavbar extends StatelessWidget {
   final String userName;
 
   const WorkerNavbar({super.key, required this.userName});
-
-  void logout(BuildContext context) {
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => const LoginPage()),
-      (Route<dynamic> route) => false,
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
