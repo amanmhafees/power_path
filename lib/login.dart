@@ -107,6 +107,8 @@ class _LoginPageState extends State<LoginPage> {
               await prefs.setString('userId', id);
               await prefs.setString('userName', name);
               await prefs.setString('section', section);
+              await prefs.setString(
+                  'designation', designation); // Save designation
 
               if (designation == 'System Supervisor') {
                 Navigator.pushReplacement(

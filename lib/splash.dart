@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'login.dart';
 import 'home.dart';
-import 'admin_home.dart';
-import 'ss_home.dart';
+import 'login.dart';
+import 'admin_home.dart'; // Import the AdminHomePage
+import 'ss_home.dart'; // Import the SSHomePage
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -33,7 +33,7 @@ class _SplashScreenState extends State<SplashScreen> {
       } else {
         final designation = prefs.getString('designation') ?? '';
         final section = prefs.getString('section') ?? '';
-        final name = prefs.getString('name') ?? '';
+        final name = prefs.getString('userName') ?? ''; // Retrieve userName
 
         if (designation == 'System Supervisor') {
           Navigator.pushReplacement(
