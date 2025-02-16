@@ -19,6 +19,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
   bool _isAdmin = false; // Toggle for admin login
   String _errorMessage = '';
+  bool _isPasswordVisible = false; // State variable for password visibility
 
   String hashPassword(String password) {
     final bytes = utf8.encode(password); // Convert password to bytes
@@ -225,12 +226,24 @@ class _LoginPageState extends State<LoginPage> {
                             const SizedBox(height: 20),
                             TextField(
                               controller: _passwordController,
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                 labelText: 'Password',
-                                border: OutlineInputBorder(),
-                                prefixIcon: Icon(Icons.lock),
+                                border: const OutlineInputBorder(),
+                                prefixIcon: const Icon(Icons.lock),
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _isPasswordVisible
+                                        ? Icons.visibility
+                                        : Icons.visibility_off,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _isPasswordVisible = !_isPasswordVisible;
+                                    });
+                                  },
+                                ),
                               ),
-                              obscureText: true,
+                              obscureText: !_isPasswordVisible,
                             ),
                             const SizedBox(height: 20),
                             ElevatedButton(
