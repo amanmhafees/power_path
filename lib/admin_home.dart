@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'add_employee.dart'; // Import the AddEmployeePage
 import 'login.dart'; // Import the LoginPage
 
 class AdminHomePage extends StatelessWidget {
   const AdminHomePage({super.key});
 
-  void logout(BuildContext context) {
+  Future<void> logout(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear(); // Clear all session data
+
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => const LoginPage()),

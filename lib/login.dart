@@ -58,7 +58,7 @@ class _LoginPageState extends State<LoginPage> {
               await prefs.setBool('isLoggedIn', true);
               await prefs.setBool('isAdmin', true);
               await prefs.setString('userId', id);
-              await prefs.setString('userName', adminDoc['name']);
+              await prefs.setString('userName', 'admin');
               await prefs.setString(
                   'section', 'admin'); // Assuming admin section
 
