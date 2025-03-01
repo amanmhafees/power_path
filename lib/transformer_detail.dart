@@ -66,20 +66,76 @@ class _TransformerDetailPageState extends State<TransformerDetailPage> {
   }
 
   Future<void> _completeMaintenance() async {
+    final TextEditingController maintenanceDetailsController =
+        TextEditingController();
     final DateTime now = DateTime.now();
-    await FirebaseFirestore.instance
-        .collection('transformers')
-        .doc(widget.transformer['id'])
-        .update({
-      'lastMaintenanceDate': now,
-      'nextMaintenanceDate': null,
-      'maintenancePurpose': null,
-    });
-    setState(() {
-      maintenanceDetails!['lastMaintenanceDate'] = Timestamp.fromDate(now);
-      maintenanceDetails!['nextMaintenanceDate'] = null;
-      maintenanceDetails!['maintenancePurpose'] = null;
-    });
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Enter Maintenance Details'),
+          content: TextField(
+            controller: maintenanceDetailsController,
+            decoration: const InputDecoration(
+              hintText: 'Enter details of the maintenance performed',
+            ),
+            maxLines: 5,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                final String maintenanceDetails =
+                    maintenanceDetailsController.text.trim();
+                if (maintenanceDetails.isNotEmpty) {
+                  final maintenanceRecord = {
+                    'date': now,
+                    'details': maintenanceDetails,
+                  };
+
+                  await FirebaseFirestore.instance
+                      .collection('transformers')
+                      .doc(widget.transformer['id'])
+                      .update({
+                    'lastMaintenanceDate': now,
+                    'maintenanceRecords':
+                        FieldValue.arrayUnion([maintenanceRecord]),
+                    'nextMaintenanceDate':
+                        null, // Clear the next maintenance date
+                    'maintenancePurpose': null, // Clear the maintenance purpose
+                  });
+
+                  setState(() {
+                    this.maintenanceDetails!['lastMaintenanceDate'] =
+                        Timestamp.fromDate(now);
+                    this.maintenanceDetails!['nextMaintenanceDate'] = null;
+                    this.maintenanceDetails!['maintenancePurpose'] = null;
+                    if (this.maintenanceDetails!['maintenanceRecords'] ==
+                        null) {
+                      this.maintenanceDetails!['maintenanceRecords'] = [
+                        maintenanceRecord
+                      ];
+                    } else {
+                      (this.maintenanceDetails!['maintenanceRecords'] as List)
+                          .add(maintenanceRecord);
+                    }
+                  });
+
+                  Navigator.of(context).pop();
+                }
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   //redirecting to maps
@@ -334,7 +390,25 @@ class _TransformerDetailPageState extends State<TransformerDetailPage> {
                                 IconButton(
                                   icon: const Icon(Icons.check_circle,
                                       color: AppColors.buttonColor),
-                                  onPressed: _completeMaintenance,
+                                  onPressed: () async {
+                                    final prefs =
+                                        await SharedPreferences.getInstance();
+                                    final String designation =
+                                        prefs.getString('designation') ?? '';
+                                    if (designation
+                                        .toLowerCase()
+                                        .contains('engineer')) {
+                                      _completeMaintenance();
+                                    } else {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                              'Only engineers can complete maintenance.'),
+                                        ),
+                                      );
+                                    }
+                                  },
                                 ),
                             ],
                           ),

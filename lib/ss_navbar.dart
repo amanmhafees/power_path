@@ -3,6 +3,7 @@ import 'login.dart'; // Import the LoginPage
 import 'transfer.dart'; // Import the TransferPage
 import 'history.dart'; // Import the HistoryPage
 import 'ss_home.dart'; // Import the SSHomePage
+import 'retirement.dart'; // Import the RetirementPage
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> logout(BuildContext context) async {
@@ -70,7 +71,13 @@ class SSNavbar extends StatelessWidget {
             title: const Text('Retirement'),
             onTap: () {
               Navigator.pop(context);
-              // Navigate to Retirement
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      RetirementPage(supervisorSection: section),
+                ),
+              );
             },
           ),
           ListTile(

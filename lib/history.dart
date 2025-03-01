@@ -12,18 +12,24 @@ class HistoryPage extends StatelessWidget {
     String normalizedSection = section.trim().toLowerCase();
     print('Fetching employees for section: $normalizedSection'); // Debugging
 
-    QuerySnapshot snapshot = await FirebaseFirestore.instance
+    QuerySnapshot transferSnapshot = await FirebaseFirestore.instance
         .collection('section_history')
+        .where('old_section', isEqualTo: normalizedSection)
+        .get();
+
+    QuerySnapshot retirementSnapshot = await FirebaseFirestore.instance
+        .collection('retirement_history')
         .where('section', isEqualTo: normalizedSection)
         .get();
 
-    print('Documents found: ${snapshot.docs.length}'); // Debugging
-
-    if (snapshot.docs.isEmpty) return [];
+    print(
+        'Transfer documents found: ${transferSnapshot.docs.length}'); // Debugging
+    print(
+        'Retirement documents found: ${retirementSnapshot.docs.length}'); // Debugging
 
     List<Map<String, String>> pastEmployees = [];
 
-    for (var doc in snapshot.docs) {
+    for (var doc in transferSnapshot.docs) {
       Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
 
       String employeeId = data['employee_id'].toString(); // Ensure it's String
@@ -32,13 +38,48 @@ class HistoryPage extends StatelessWidget {
           ? (data['transfer_date'] as Timestamp).toDate().toString()
           : 'No Date';
 
+      QuerySnapshot employeeSnapshot = await FirebaseFirestore.instance
+          .collection('employees')
+          .where('id', isEqualTo: employeeId)
+          .get();
+      String employeeName = employeeSnapshot.docs.isNotEmpty
+          ? employeeSnapshot.docs.first['name']
+          : 'Unknown';
+
       print(
-          'Employee: $employeeId, New Section: $newSection, Transfer Date: $transferDate');
+          'Employee: $employeeName, New Section: $newSection, Transfer Date: $transferDate');
 
       pastEmployees.add({
         'employee_id': employeeId,
+        'employee_name': employeeName,
         'new_section': newSection,
         'transfer_date': transferDate,
+      });
+    }
+
+    for (var doc in retirementSnapshot.docs) {
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+
+      String employeeId = data['employee_id'].toString(); // Ensure it's String
+      String retirementDate = (data['retirement_date'] != null)
+          ? (data['retirement_date'] as Timestamp).toDate().toString()
+          : 'No Date';
+
+      QuerySnapshot employeeSnapshot = await FirebaseFirestore.instance
+          .collection('employees')
+          .where('id', isEqualTo: employeeId)
+          .get();
+      String employeeName = employeeSnapshot.docs.isNotEmpty
+          ? employeeSnapshot.docs.first['name']
+          : 'Unknown';
+
+      print('Employee: $employeeName, Retirement Date: $retirementDate');
+
+      pastEmployees.add({
+        'employee_id': employeeId,
+        'employee_name': employeeName,
+        'new_section': 'Retired',
+        'transfer_date': retirementDate,
       });
     }
 
@@ -79,7 +120,7 @@ class HistoryPage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Employee ID: ${employee['employee_id']}',
+                          'Employee Name: ${employee['employee_name']}',
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,

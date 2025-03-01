@@ -3,6 +3,8 @@ import 'login.dart'; // Import the LoginPage
 import 'add_transformer.dart';
 import 'home.dart'; // Import the HomePage
 import 'schedule_maintenance.dart'; // Import the ScheduleMaintenancePage
+import 'maintenance_details.dart'; // Import the MaintenanceDetailsPage
+import 'remove_transformer.dart'; // Import the RemoveTransformerPage
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> logout(BuildContext context) async {
@@ -99,6 +101,38 @@ class EngineerNavbar extends StatelessWidget {
                   builder: (context) => ScheduleMaintenancePage(
                     userName: userName,
                     section: section,
+                  ),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.list),
+            title: const Text('Maintenance Details'),
+            onTap: () {
+              // Navigate to Maintenance Details
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MaintenanceDetailsPage(
+                    section: section,
+                    userName: userName,
+                  ),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.delete),
+            title: const Text('Remove Transformer'),
+            onTap: () {
+              // Navigate to Remove Transformer
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RemoveTransformerPage(
+                    section: section,
+                    userName: userName,
                   ),
                 ),
               );
