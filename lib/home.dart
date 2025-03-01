@@ -131,14 +131,23 @@ class _HomePageState extends State<HomePage> {
                     margin: const EdgeInsets.only(bottom: 16),
                     child: InkWell(
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => TransformersPage(
-                              section: section['id'],
+                        if (section['id'] == widget.section) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => TransformersPage(
+                                section: section['id'],
+                              ),
                             ),
-                          ),
-                        );
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                  'You do not have permission to access this section.'),
+                            ),
+                          );
+                        }
                       },
                       borderRadius: BorderRadius.circular(12),
                       child: Container(
