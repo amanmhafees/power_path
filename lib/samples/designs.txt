@@ -1,0 +1,348 @@
+login page designation
+
+import 'package:flutter/material.dart';
+import 'package:crypto/crypto.dart';
+import 'dart:convert'; // for the utf8.encode method
+import 'package:shared_preferences/shared_preferences.dart';
+
+// Import your home pages
+import 'home.dart';
+import 'admin_home.dart';
+import 'ss_home.dart';
+
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final TextEditingController _idController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _isAdmin = false; // Toggle for admin login
+  String _errorMessage = '';
+  bool _isPasswordVisible = false; // State variable for password visibility
+
+  String hashPassword(String password) {
+    final bytes = utf8.encode(password); // Convert password to bytes
+    final digest = sha256.convert(bytes); // Hash the bytes using SHA-256
+    return digest.toString(); // Convert the hash to a string
+  }
+
+  Future<void> login() async {
+    final id = _idController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (id.isEmpty || password.isEmpty) {
+      setState(() {
+        _errorMessage = 'Please enter both Id and Password';
+      });
+      return;
+    }
+
+    try {
+      if (_isAdmin) {
+        // Admin login check - Replace with your Firebase code
+        if (id == 'admin' && password == 'admin123') {
+          // Save login state
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setBool('isLoggedIn', true);
+          await prefs.setBool('isAdmin', true);
+          await prefs.setString('userId', id);
+          await prefs.setString('userName', 'admin');
+          await prefs.setString('section', 'admin');
+
+          if (!mounted) return;
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const AdminHomePage()),
+          );
+        } else {
+          setState(() {
+            _errorMessage = 'Invalid Admin Id or Password';
+          });
+        }
+      } else {
+        // Employee login check - Replace with your Firebase code
+        if (id == 'emp123' && password == 'emp123') {
+          // Simulate employee data
+          final designation = 'Engineer';
+          final section = 'Maintenance';
+          final name = 'John Doe';
+
+          // Save login state
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setBool('isLoggedIn', true);
+          await prefs.setBool('isAdmin', false);
+          await prefs.setString('userId', id);
+          await prefs.setString('userName', name);
+          await prefs.setString('section', section);
+          await prefs.setString('designation', designation);
+
+          if (!mounted) return;
+          if (designation == 'System Supervisor') {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => SSHomePage(section: section)),
+            );
+          } else {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => HomePage(
+                        userName: name,
+                        userType: designation.toLowerCase().contains('engineer')
+                            ? 'engineer'
+                            : 'worker',
+                        section: section,
+                      )),
+            );
+          }
+        } else {
+          setState(() {
+            _errorMessage = 'Invalid Employee Id or Password';
+          });
+        }
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Error: $e';
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.blue.shade100, Colors.white],
+          ),
+        ),
+        child: GestureDetector(
+          onTap: () {
+            FocusScope.of(context).unfocus(); // Hide the keyboard
+          },
+          child: SafeArea(
+            child: SingleChildScrollView(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: MediaQuery.of(context).size.height - 
+                        MediaQuery.of(context).padding.top - 
+                        MediaQuery.of(context).padding.bottom,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const SizedBox(height: 40),
+                        // Logo container with shadow
+                        Container(
+                          height: 100,
+                          width: 100,
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade700,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.blue.shade200,
+                                blurRadius: 15,
+                                spreadRadius: 5,
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.bolt,
+                            size: 60,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        // App name
+                        const Text(
+                          'PowerPath',
+                          style: TextStyle(
+                            fontSize: 36,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        // Tagline
+                        Text(
+                          'Energy Management System',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey.shade700,
+                          ),
+                        ),
+                        const SizedBox(height: 40),
+                        // Login card
+                        Card(
+                          elevation: 8.0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16.0),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(24.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                // User type toggle
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'Employee',
+                                      style: TextStyle(
+                                        color: !_isAdmin 
+                                            ? Colors.blue.shade700 
+                                            : Colors.grey.shade600,
+                                        fontWeight: !_isAdmin 
+                                            ? FontWeight.bold 
+                                            : FontWeight.normal,
+                                      ),
+                                    ),
+                                    Switch(
+                                      value: _isAdmin,
+                                      activeColor: Colors.blue.shade700,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _isAdmin = value;
+                                        });
+                                      },
+                                    ),
+                                    Text(
+                                      'Admin',
+                                      style: TextStyle(
+                                        color: _isAdmin 
+                                            ? Colors.blue.shade700 
+                                            : Colors.grey.shade600,
+                                        fontWeight: _isAdmin 
+                                            ? FontWeight.bold 
+                                            : FontWeight.normal,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 24),
+                                // ID field
+                                TextField(
+                                  controller: _idController,
+                                  decoration: InputDecoration(
+                                    labelText: 'ID',
+                                    hintText: 'Enter your ID',
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    prefixIcon: const Icon(Icons.person),
+                                    floatingLabelBehavior: FloatingLabelBehavior.always,
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      vertical: 16,
+                                      horizontal: 16,
+                                    ),
+                                  ),
+                                  keyboardType: TextInputType.text,
+                                ),
+                                const SizedBox(height: 20),
+                                // Password field
+                                TextField(
+                                  controller: _passwordController,
+                                  decoration: InputDecoration(
+                                    labelText: 'Password',
+                                    hintText: 'Enter your password',
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    prefixIcon: const Icon(Icons.lock),
+                                    suffixIcon: IconButton(
+                                      icon: Icon(
+                                        _isPasswordVisible
+                                            ? Icons.visibility
+                                            : Icons.visibility_off,
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          _isPasswordVisible = !_isPasswordVisible;
+                                        });
+                                      },
+                                    ),
+                                    floatingLabelBehavior: FloatingLabelBehavior.always,
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      vertical: 16,
+                                      horizontal: 16,
+                                    ),
+                                  ),
+                                  obscureText: !_isPasswordVisible,
+                                ),
+                                const SizedBox(height: 24),
+                                // Error message
+                                if (_errorMessage.isNotEmpty)
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(vertical: 8),
+                                    child: Text(
+                                      _errorMessage,
+                                      style: const TextStyle(
+                                        color: Colors.red,
+                                        fontSize: 14,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                const SizedBox(height: 8),
+                                // Login button
+                                ElevatedButton(
+                                  onPressed: login,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.blue.shade700,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 16,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    elevation: 2,
+                                  ),
+                                  child: const Text(
+                                    'LOGIN',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 1.2,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        // Footer
+                        Text(
+                          '© 2025 PowerPath. All rights reserved.',
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
