@@ -20,6 +20,11 @@ class AddTransformer extends StatefulWidget {
 class _AddTransformerState extends State<AddTransformer> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _mapUrlController = TextEditingController();
+  final TextEditingController _capacityController = TextEditingController();
+  final TextEditingController _dateOfInstallationController =
+      TextEditingController();
+  final TextEditingController _yearOfManufacturingController =
+      TextEditingController();
   String? _selectedStatus;
   File? _selectedImage;
 
@@ -32,10 +37,17 @@ class _AddTransformerState extends State<AddTransformer> {
   Future<void> _addTransformer() async {
     final String name = _nameController.text.trim();
     final String mapUrl = _mapUrlController.text.trim();
+    final String capacity = _capacityController.text.trim();
+    final String dateOfInstallation = _dateOfInstallationController.text.trim();
+    final String yearOfManufacturing =
+        _yearOfManufacturingController.text.trim();
     final String? status = _selectedStatus;
 
     if (name.isEmpty ||
         mapUrl.isEmpty ||
+        capacity.isEmpty ||
+        dateOfInstallation.isEmpty ||
+        yearOfManufacturing.isEmpty ||
         status == null ||
         _selectedImage == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -55,6 +67,13 @@ class _AddTransformerState extends State<AddTransformer> {
         'status': status,
         'section': widget.section,
         'image_url': imageUrl,
+        'details': [
+          {
+            'capacity': capacity,
+            'date_of_installation': dateOfInstallation,
+            'year_of_manufacturing': yearOfManufacturing,
+          }
+        ],
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -64,6 +83,9 @@ class _AddTransformerState extends State<AddTransformer> {
       // Clear the input fields
       _nameController.clear();
       _mapUrlController.clear();
+      _capacityController.clear();
+      _dateOfInstallationController.clear();
+      _yearOfManufacturingController.clear();
       setState(() {
         _selectedStatus = null;
         _selectedImage = null;
@@ -124,67 +146,99 @@ class _AddTransformerState extends State<AddTransformer> {
       drawer: EngineerNavbar(
         userName: widget.userName,
         section: widget.section,
+        currentPage: 'Add New Transformer',
       ), // Pass the necessary parameters to EngineerNavbar
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Transformer Name',
-                border: OutlineInputBorder(),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              TextField(
+                controller: _nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Transformer Name',
+                  border: OutlineInputBorder(),
+                ),
+                enableInteractiveSelection: true, // Allow paste option
               ),
-              enableInteractiveSelection: true, // Allow paste option
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _mapUrlController,
-              decoration: const InputDecoration(
-                labelText: 'Location URL',
-                border: OutlineInputBorder(),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _mapUrlController,
+                decoration: const InputDecoration(
+                  labelText: 'Location URL',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.url,
+                enableInteractiveSelection: true, // Allow paste option
               ),
-              keyboardType: TextInputType.url,
-              enableInteractiveSelection: true, // Allow paste option
-            ),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<String>(
-              value: _selectedStatus,
-              items: _statusOptions.map((String status) {
-                return DropdownMenuItem<String>(
-                  value: status,
-                  child: Text(status),
-                );
-              }).toList(),
-              onChanged: (String? newValue) {
-                setState(() {
-                  _selectedStatus = newValue;
-                });
-              },
-              decoration: const InputDecoration(
-                labelText: 'Status',
-                border: OutlineInputBorder(),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _capacityController,
+                decoration: const InputDecoration(
+                  labelText: 'Capacity',
+                  border: OutlineInputBorder(),
+                ),
+                enableInteractiveSelection: true, // Allow paste option
               ),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _pickImage,
-              child: const Text('Pick Image'),
-            ),
-            const SizedBox(height: 16),
-            if (_selectedImage != null)
-              Image.file(
-                _selectedImage!,
-                height: 200,
-                width: double.infinity,
-                fit: BoxFit.cover,
+              const SizedBox(height: 16),
+              TextField(
+                controller: _dateOfInstallationController,
+                decoration: const InputDecoration(
+                  labelText: 'Date of Installation',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.datetime,
+                enableInteractiveSelection: true, // Allow paste option
               ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _addTransformer,
-              child: const Text('Add Transformer'),
-            ),
-          ],
+              const SizedBox(height: 16),
+              TextField(
+                controller: _yearOfManufacturingController,
+                decoration: const InputDecoration(
+                  labelText: 'Year of Manufacturing',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.number,
+                enableInteractiveSelection: true, // Allow paste option
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                value: _selectedStatus,
+                items: _statusOptions.map((String status) {
+                  return DropdownMenuItem<String>(
+                    value: status,
+                    child: Text(status),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _selectedStatus = newValue;
+                  });
+                },
+                decoration: const InputDecoration(
+                  labelText: 'Status',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _pickImage,
+                child: const Text('Pick Image'),
+              ),
+              const SizedBox(height: 16),
+              if (_selectedImage != null)
+                Image.file(
+                  _selectedImage!,
+                  height: 200,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _addTransformer,
+                child: const Text('Add Transformer'),
+              ),
+            ],
+          ),
         ),
       ),
     );

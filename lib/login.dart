@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:convert'; // for the utf8.encode method
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+// Import your home pages
 import 'home.dart';
-import 'admin_home.dart'; // Import the AdminHomePage
-import 'ss_home.dart'; // Import the SSHomePage
+import 'admin_home.dart';
+import 'ss_home.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -40,7 +42,7 @@ class _LoginPageState extends State<LoginPage> {
 
     try {
       if (_isAdmin) {
-        // Admin login check
+        // Admin login check - Replace with your Firebase code
         FirebaseFirestore.instance
             .collection('admins')
             .where('adminid', isEqualTo: id)
@@ -82,7 +84,7 @@ class _LoginPageState extends State<LoginPage> {
           });
         });
       } else {
-        // Employee login check
+        // Employee login check - Replace with your Firebase code
         FirebaseFirestore.instance
             .collection('employees')
             .where('id',
@@ -156,123 +158,232 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Login'),
-        backgroundColor: Colors.blue.shade700,
-        centerTitle: true,
-        foregroundColor: Colors.white,
-      ),
-      body: GestureDetector(
-        onTap: () {
-          FocusScope.of(context).unfocus(); // Hide the keyboard
-        },
-        child: SingleChildScrollView(
-          child: Center(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: MediaQuery.of(context).size.height - kToolbarHeight,
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      'assets/images/logo.png',
-                      height: 200,
-                    ),
-                    const SizedBox(height: 20),
-                    const Text(
-                      'PowerPath',
-                      style: TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blue,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    Card(
-                      elevation: 4.0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.blue.shade100, Colors.white],
+          ),
+        ),
+        child: GestureDetector(
+          onTap: () {
+            FocusScope.of(context).unfocus(); // Hide the keyboard
+          },
+          child: SafeArea(
+            child: SingleChildScrollView(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: MediaQuery.of(context).size.height -
+                        MediaQuery.of(context).padding.top -
+                        MediaQuery.of(context).padding.bottom,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const SizedBox(height: 40),
+                        // Logo container with shadow
+                        Container(
+                          height: 100,
+                          width: 100,
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade700,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.blue.shade200,
+                                blurRadius: 15,
+                                spreadRadius: 5,
+                              ),
+                            ],
+                          ),
+                          child: ClipOval(
+                            child: Image.asset(
+                              'assets/images/logo.png',
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        // App name
+                        const Text(
+                          'PowerPath',
+                          style: TextStyle(
+                            fontSize: 36,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        // Tagline
+                        Text(
+                          'Energy Management System',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey.shade700,
+                          ),
+                        ),
+                        const SizedBox(height: 40),
+                        // Login card
+                        Card(
+                          elevation: 8.0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16.0),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(24.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                const Text('Employee'),
-                                Switch(
-                                  value: _isAdmin,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _isAdmin = value;
-                                    });
-                                  },
+                                // User type toggle
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'Employee',
+                                      style: TextStyle(
+                                        color: !_isAdmin
+                                            ? Colors.blue.shade700
+                                            : Colors.grey.shade600,
+                                        fontWeight: !_isAdmin
+                                            ? FontWeight.bold
+                                            : FontWeight.normal,
+                                      ),
+                                    ),
+                                    Switch(
+                                      value: _isAdmin,
+                                      activeColor: Colors.blue.shade700,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _isAdmin = value;
+                                        });
+                                      },
+                                    ),
+                                    Text(
+                                      'Admin',
+                                      style: TextStyle(
+                                        color: _isAdmin
+                                            ? Colors.blue.shade700
+                                            : Colors.grey.shade600,
+                                        fontWeight: _isAdmin
+                                            ? FontWeight.bold
+                                            : FontWeight.normal,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                const Text('Admin'),
+                                const SizedBox(height: 24),
+                                // ID field
+                                TextField(
+                                  controller: _idController,
+                                  decoration: InputDecoration(
+                                    labelText: 'ID',
+                                    hintText: 'Enter your ID',
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    prefixIcon: const Icon(Icons.person),
+                                    floatingLabelBehavior:
+                                        FloatingLabelBehavior.always,
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      vertical: 16,
+                                      horizontal: 16,
+                                    ),
+                                  ),
+                                  keyboardType: TextInputType.text,
+                                ),
+                                const SizedBox(height: 20),
+                                // Password field
+                                TextField(
+                                  controller: _passwordController,
+                                  decoration: InputDecoration(
+                                    labelText: 'Password',
+                                    hintText: 'Enter your password',
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    prefixIcon: const Icon(Icons.lock),
+                                    suffixIcon: IconButton(
+                                      icon: Icon(
+                                        _isPasswordVisible
+                                            ? Icons.visibility
+                                            : Icons.visibility_off,
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          _isPasswordVisible =
+                                              !_isPasswordVisible;
+                                        });
+                                      },
+                                    ),
+                                    floatingLabelBehavior:
+                                        FloatingLabelBehavior.always,
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      vertical: 16,
+                                      horizontal: 16,
+                                    ),
+                                  ),
+                                  obscureText: !_isPasswordVisible,
+                                ),
+                                const SizedBox(height: 24),
+                                // Error message
+                                if (_errorMessage.isNotEmpty)
+                                  Container(
+                                    padding:
+                                        const EdgeInsets.symmetric(vertical: 8),
+                                    child: Text(
+                                      _errorMessage,
+                                      style: const TextStyle(
+                                        color: Colors.red,
+                                        fontSize: 14,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                const SizedBox(height: 8),
+                                // Login button
+                                ElevatedButton(
+                                  onPressed: login,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.blue.shade700,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 16,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    elevation: 2,
+                                  ),
+                                  child: const Text(
+                                    'LOGIN',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 1.2,
+                                    ),
+                                  ),
+                                ),
                               ],
                             ),
-                            const SizedBox(height: 20),
-                            TextField(
-                              controller: _idController,
-                              decoration: const InputDecoration(
-                                labelText: 'Id',
-                                border: OutlineInputBorder(),
-                                prefixIcon: Icon(Icons.person),
-                              ),
-                              keyboardType: TextInputType.text,
-                            ),
-                            const SizedBox(height: 20),
-                            TextField(
-                              controller: _passwordController,
-                              decoration: InputDecoration(
-                                labelText: 'Password',
-                                border: const OutlineInputBorder(),
-                                prefixIcon: const Icon(Icons.lock),
-                                suffixIcon: IconButton(
-                                  icon: Icon(
-                                    _isPasswordVisible
-                                        ? Icons.visibility
-                                        : Icons.visibility_off,
-                                  ),
-                                  onPressed: () {
-                                    setState(() {
-                                      _isPasswordVisible = !_isPasswordVisible;
-                                    });
-                                  },
-                                ),
-                              ),
-                              obscureText: !_isPasswordVisible,
-                            ),
-                            const SizedBox(height: 20),
-                            ElevatedButton(
-                              onPressed:
-                                  login, // Pass the login function as a callback
-                              style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 50, vertical: 15),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                ),
-                              ),
-                              child: const Text('Login'),
-                            ),
-                            if (_errorMessage.isNotEmpty)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 20),
-                                child: Text(
-                                  _errorMessage,
-                                  style: const TextStyle(color: Colors.red),
-                                ),
-                              ),
-                          ],
+                          ),
                         ),
-                      ),
+                        const SizedBox(height: 24),
+                        // Footer
+                        Text(
+                          '© 2025 PowerPath. All rights reserved.',
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),

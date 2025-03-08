@@ -14,18 +14,21 @@ class _AddSectionPageState extends State<AddSectionPage> {
   final TextEditingController _sectionNameController = TextEditingController();
   final TextEditingController _districtController = TextEditingController();
   String _errorMessage = '';
+  bool _isLoading = false;
 
   Future<void> _addSection() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = '';
+    });
+
     final id = _idController.text.trim();
     final sectionName = _sectionNameController.text.trim();
     final district = _districtController.text.trim();
-
-    if (id.isEmpty || sectionName.isEmpty || district.isEmpty) {
-      setState(() {
-        _errorMessage = 'Please fill in all fields';
-      });
-      return;
-    }
 
     try {
       final querySnapshot = await FirebaseFirestore.instance
@@ -36,6 +39,7 @@ class _AddSectionPageState extends State<AddSectionPage> {
       if (querySnapshot.docs.isNotEmpty) {
         setState(() {
           _errorMessage = 'Section ID already exists';
+          _isLoading = false;
         });
         return;
       }
@@ -44,12 +48,33 @@ class _AddSectionPageState extends State<AddSectionPage> {
         'id': id,
         'section_name': sectionName,
         'district': district,
+        'created_at': FieldValue.serverTimestamp(),
       });
 
-      Navigator.pop(context);
+      setState(() {
+        _isLoading = false;
+      });
+
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Section added successfully'),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+
+      // Clear form
+      _idController.clear();
+      _sectionNameController.clear();
+      _districtController.clear();
+
+      // Optional: Navigate back
+      // Navigator.pop(context);
     } catch (e) {
       setState(() {
         _errorMessage = 'Error: $e';
+        _isLoading = false;
       });
     }
   }
@@ -59,71 +84,172 @@ class _AddSectionPageState extends State<AddSectionPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Add New Section'),
-        backgroundColor: Colors.blue.shade700,
+        backgroundColor: Colors.indigo.shade800,
         centerTitle: true,
+        elevation: 0,
         foregroundColor: Colors.white,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: <Widget>[
-              TextFormField(
-                controller: _idController,
-                decoration: const InputDecoration(
-                  labelText: 'Section ID',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a section ID';
-                  }
-                  return null;
-                },
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.indigo.shade800, Colors.indigo.shade200],
+          ),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Card(
+              elevation: 8,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
               ),
-              const SizedBox(height: 20),
-              TextFormField(
-                controller: _sectionNameController,
-                decoration: const InputDecoration(
-                  labelText: 'Section Name',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a section name';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 20),
-              TextFormField(
-                controller: _districtController,
-                decoration: const InputDecoration(
-                  labelText: 'District',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a district';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _addSection,
-                child: const Text('Add Section'),
-              ),
-              if (_errorMessage.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(top: 20),
-                  child: Text(
-                    _errorMessage,
-                    style: const TextStyle(color: Colors.red),
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Form(
+                  key: _formKey,
+                  child: ListView(
+                    children: <Widget>[
+                      const Text(
+                        'Create New Section',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.indigo,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 30),
+                      TextFormField(
+                        controller: _idController,
+                        decoration: InputDecoration(
+                          labelText: 'Section ID',
+                          prefixIcon:
+                              const Icon(Icons.numbers, color: Colors.indigo),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(
+                                color: Colors.indigo, width: 2),
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey.shade50,
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a section ID';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      TextFormField(
+                        controller: _sectionNameController,
+                        decoration: InputDecoration(
+                          labelText: 'Section Name',
+                          prefixIcon:
+                              const Icon(Icons.business, color: Colors.indigo),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(
+                                color: Colors.indigo, width: 2),
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey.shade50,
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a section name';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      TextFormField(
+                        controller: _districtController,
+                        decoration: InputDecoration(
+                          labelText: 'District',
+                          prefixIcon: const Icon(Icons.location_city,
+                              color: Colors.indigo),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(
+                                color: Colors.indigo, width: 2),
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey.shade50,
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a district';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 30),
+                      SizedBox(
+                        height: 55,
+                        child: ElevatedButton(
+                          onPressed: _isLoading ? null : _addSection,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.indigo,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 3,
+                          ),
+                          child: _isLoading
+                              ? const CircularProgressIndicator(
+                                  color: Colors.white)
+                              : const Text(
+                                  'Add Section',
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                        ),
+                      ),
+                      if (_errorMessage.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 20),
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.red.shade50,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.red.shade200),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(Icons.error_outline,
+                                    color: Colors.red.shade700),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    _errorMessage,
+                                    style:
+                                        TextStyle(color: Colors.red.shade700),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
-            ],
+              ),
+            ),
           ),
         ),
       ),

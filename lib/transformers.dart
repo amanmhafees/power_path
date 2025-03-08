@@ -28,6 +28,7 @@ class _TransformersPageState extends State<TransformersPage> {
   final TextEditingController _searchController = TextEditingController();
   List<Map<String, dynamic>> transformers = [];
   List<Map<String, dynamic>> filteredTransformers = [];
+  String selectedStatus = 'All';
 
   @override
   void initState() {
@@ -49,6 +50,7 @@ class _TransformersPageState extends State<TransformersPage> {
                 'map_url': doc['map_url'],
                 'status': doc['status'],
                 'section': doc['section'],
+                'details': doc['details'], // Include the details field
               })
           .toList();
       setState(() {
@@ -64,7 +66,19 @@ class _TransformersPageState extends State<TransformersPage> {
     setState(() {
       filteredTransformers = transformers
           .where((transformer) =>
-              transformer['name'].toLowerCase().contains(query.toLowerCase()))
+              transformer['name'].toLowerCase().contains(query.toLowerCase()) &&
+              (selectedStatus == 'All' ||
+                  transformer['status'] == selectedStatus))
+          .toList();
+    });
+  }
+
+  void _filterByStatus(String status) {
+    setState(() {
+      selectedStatus = status;
+      filteredTransformers = transformers
+          .where((transformer) =>
+              (status == 'All' || transformer['status'] == status))
           .toList();
     });
   }
@@ -80,6 +94,12 @@ class _TransformersPageState extends State<TransformersPage> {
       default:
         return AppColors.grey;
     }
+  }
+
+  int _getStatusCount(String status) {
+    return transformers
+        .where((transformer) => transformer['status'] == status)
+        .length;
   }
 
   @override
@@ -128,6 +148,36 @@ class _TransformersPageState extends State<TransformersPage> {
                 onChanged: _filterTransformers,
               ),
             ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColors.lightBlue.withOpacity(0.5),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Row(
+                  children: [
+                    _buildStatusButton('All', 'All', AppColors.primaryBlue),
+                    _buildStatusButton(
+                      'Active',
+                      _getStatusCount('Active').toString(),
+                      AppColors.green,
+                    ),
+                    _buildStatusButton(
+                      'Inactive',
+                      _getStatusCount('Inactive').toString(),
+                      AppColors.red,
+                    ),
+                    _buildStatusButton(
+                      'Under Maintenance',
+                      _getStatusCount('Under Maintenance').toString(),
+                      AppColors.greyBadge,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
             Expanded(
               child: RefreshIndicator(
                 onRefresh: _fetchTransformers,
@@ -213,6 +263,39 @@ class _TransformersPageState extends State<TransformersPage> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatusButton(String status, String count, Color color) {
+    final bool isSelected = selectedStatus == status;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => _filterByStatus(status),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: isSelected ? color : Colors.transparent,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            children: [
+              Text(
+                status,
+                style: TextStyle(
+                  color: isSelected ? Colors.white : color,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                count,
+                style: TextStyle(
+                  color: isSelected ? Colors.white : color,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

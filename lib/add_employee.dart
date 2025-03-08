@@ -116,109 +116,234 @@ class _AddEmployeePageState extends State<AddEmployeePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Add Employee'),
+        backgroundColor: Colors.blue,
+        elevation: 0,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: <Widget>[
-              TextFormField(
-                controller: _idController,
-                decoration: const InputDecoration(labelText: 'Employee ID'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter an employee ID';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Name'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a name';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _passwordController,
-                decoration: const InputDecoration(labelText: 'Password'),
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a password';
-                  }
-                  return null;
-                },
-              ),
-              DropdownSearch<String>(
-                items: sections,
-                onChanged: (value) {
-                  setState(() {
-                    selectedSection = value;
-                  });
-                },
-                selectedItem: selectedSection,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please select a section';
-                  }
-                  return null;
-                },
-                dropdownDecoratorProps: const DropDownDecoratorProps(
-                  dropdownSearchDecoration: InputDecoration(
-                    labelText: 'Section',
-                  ),
-                ),
-                dropdownBuilder: (context, selectedItem) {
-                  return Text(selectedItem ?? '');
-                },
-                popupProps: PopupProps.menu(
-                  showSearchBox: true,
-                ),
-              ),
-              DropdownSearch<String>(
-                items: designations,
-                onChanged: (value) {
-                  setState(() {
-                    selectedDesignation = value;
-                  });
-                },
-                selectedItem: selectedDesignation,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please select a designation';
-                  }
-                  return null;
-                },
-                dropdownDecoratorProps: const DropDownDecoratorProps(
-                  dropdownSearchDecoration: InputDecoration(
-                    labelText: 'Designation',
-                  ),
-                ),
-                dropdownBuilder: (context, selectedItem) {
-                  return Text(selectedItem ?? '');
-                },
-                popupProps: PopupProps.menu(
-                  showSearchBox: true,
-                ),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _submitForm,
-                style: ElevatedButton.styleFrom(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.blue.shade50, Colors.white],
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: ListView(
+              children: <Widget>[
+                Card(
+                  elevation: 4,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Employee Information',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        TextFormField(
+                          controller: _idController,
+                          decoration: InputDecoration(
+                            labelText: 'Employee ID',
+                            prefixIcon:
+                                const Icon(Icons.badge, color: Colors.blue),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: const BorderSide(
+                                  color: Colors.blue, width: 2),
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter an employee ID';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _nameController,
+                          decoration: InputDecoration(
+                            labelText: 'Name',
+                            prefixIcon:
+                                const Icon(Icons.person, color: Colors.blue),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: const BorderSide(
+                                  color: Colors.blue, width: 2),
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter a name';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _passwordController,
+                          decoration: InputDecoration(
+                            labelText: 'Password',
+                            prefixIcon:
+                                const Icon(Icons.lock, color: Colors.blue),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: const BorderSide(
+                                  color: Colors.blue, width: 2),
+                            ),
+                          ),
+                          obscureText: true,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter a password';
+                            }
+                            return null;
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                child: const Text('Add Employee'),
-              ),
-            ],
+                const SizedBox(height: 16),
+                Card(
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Department Details',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        DropdownSearch<String>(
+                          items: sections,
+                          onChanged: (value) {
+                            setState(() {
+                              selectedSection = value;
+                            });
+                          },
+                          selectedItem: selectedSection,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please select a section';
+                            }
+                            return null;
+                          },
+                          dropdownDecoratorProps: const DropDownDecoratorProps(
+                            dropdownSearchDecoration: InputDecoration(
+                              labelText: 'Section',
+                              prefixIcon:
+                                  Icon(Icons.business, color: Colors.blue),
+                              border: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10)),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10)),
+                                borderSide:
+                                    BorderSide(color: Colors.blue, width: 2),
+                              ),
+                            ),
+                          ),
+                          dropdownBuilder: (context, selectedItem) {
+                            return Text(selectedItem ?? '');
+                          },
+                          popupProps: PopupProps.menu(
+                            showSearchBox: true,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        DropdownSearch<String>(
+                          items: designations,
+                          onChanged: (value) {
+                            setState(() {
+                              selectedDesignation = value;
+                            });
+                          },
+                          selectedItem: selectedDesignation,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please select a designation';
+                            }
+                            return null;
+                          },
+                          dropdownDecoratorProps: const DropDownDecoratorProps(
+                            dropdownSearchDecoration: InputDecoration(
+                              labelText: 'Designation',
+                              prefixIcon: Icon(Icons.work, color: Colors.blue),
+                              border: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10)),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10)),
+                                borderSide:
+                                    BorderSide(color: Colors.blue, width: 2),
+                              ),
+                            ),
+                          ),
+                          dropdownBuilder: (context, selectedItem) {
+                            return Text(selectedItem ?? '');
+                          },
+                          popupProps: PopupProps.menu(
+                            showSearchBox: true,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: _submitForm,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    elevation: 5,
+                  ),
+                  child: const Text(
+                    'Add Employee',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

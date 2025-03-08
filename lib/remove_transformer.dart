@@ -31,6 +31,40 @@ class _RemoveTransformerPageState extends State<RemoveTransformerPage> {
         .delete();
   }
 
+  Future<void> _confirmDelete(BuildContext context, String transformerId,
+      String transformerName) async {
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Confirm Deletion'),
+          content: Text('Are you sure you want to delete $transformerName?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true) {
+      await _removeTransformer(transformerId);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('$transformerName removed.'),
+        ),
+      );
+      // Refresh the list
+      setState(() {});
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,7 +75,10 @@ class _RemoveTransformerPageState extends State<RemoveTransformerPage> {
         foregroundColor: Colors.white,
       ),
       drawer: EngineerNavbar(
-          userName: widget.userName, section: widget.section), // Add the navbar
+        userName: widget.userName,
+        section: widget.section,
+        currentPage: 'Remove Transformer',
+      ), // Add the navbar
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: _fetchTransformers(),
         builder: (context, snapshot) {
@@ -65,14 +102,8 @@ class _RemoveTransformerPageState extends State<RemoveTransformerPage> {
                     trailing: IconButton(
                       icon: const Icon(Icons.delete, color: Colors.red),
                       onPressed: () async {
-                        await _removeTransformer(transformer['id']);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('${transformer['name']} removed.'),
-                          ),
-                        );
-                        // Refresh the list
-                        setState(() {});
+                        await _confirmDelete(
+                            context, transformer['id'], transformer['name']);
                       },
                     ),
                   ),

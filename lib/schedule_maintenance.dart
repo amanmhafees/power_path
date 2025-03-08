@@ -69,8 +69,11 @@ class _ScheduleMaintenancePageState extends State<ScheduleMaintenancePage> {
       appBar: AppBar(
         title: const Text('Schedule Maintenance'),
       ),
-      drawer:
-          EngineerNavbar(userName: widget.userName, section: widget.section),
+      drawer: EngineerNavbar(
+        userName: widget.userName,
+        section: widget.section,
+        currentPage: 'Schedule Maintenance',
+      ), // Add the EngineerNavbar
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

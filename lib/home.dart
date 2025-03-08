@@ -95,7 +95,11 @@ class _HomePageState extends State<HomePage> {
         centerTitle: true,
       ),
       drawer: widget.userType.toLowerCase().contains('engineer')
-          ? EngineerNavbar(userName: widget.userName, section: widget.section)
+          ? EngineerNavbar(
+              userName: widget.userName,
+              section: widget.section,
+              currentPage: 'Home',
+            )
           : WorkerNavbar(userName: widget.userName),
       body: SafeArea(
         child: Column(
