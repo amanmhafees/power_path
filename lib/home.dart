@@ -100,7 +100,11 @@ class _HomePageState extends State<HomePage> {
               section: widget.section,
               currentPage: 'Home',
             )
-          : WorkerNavbar(userName: widget.userName),
+          : WorkerNavbar(
+              userName: widget.userName,
+              section: widget.section,
+              currentPage: 'Home',
+            ),
       body: SafeArea(
         child: Column(
           children: [

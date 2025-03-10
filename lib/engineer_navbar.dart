@@ -5,6 +5,7 @@ import 'home.dart'; // Import the HomePage
 import 'schedule_maintenance.dart'; // Import the ScheduleMaintenancePage
 import 'maintenance_history.dart'; // Import the MaintenanceDetailsPage
 import 'remove_transformer.dart'; // Import the RemoveTransformerPage
+import 'on_duty.dart'; // Import the OnDutyPage
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> logout(BuildContext context) async {
@@ -210,6 +211,23 @@ class EngineerNavbar extends StatelessWidget {
                       );
                     },
                     isActive: currentPage == 'Remove Transformer',
+                  ),
+                  _buildNavItem(
+                    context: context,
+                    icon: Icons.work,
+                    title: 'On Duty',
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => OnDutyPage(
+                            section: section,
+                            userName: userName,
+                          ),
+                        ),
+                      );
+                    },
+                    isActive: currentPage == 'On Duty',
                   ),
                 ],
               ),
