@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'login.dart'; // Import the LoginPage
-import 'transfer.dart'; // Import the TransferPage
-import 'history.dart'; // Import the HistoryPage
-import 'ss_home.dart'; // Import the SSHomePage
-import 'retirement.dart'; // Import the RetirementPage
+import '../pages/login.dart'; // Import the LoginPage
+import '../pages/transfer.dart'; // Import the TransferPage
+import '../pages/history.dart'; // Import the HistoryPage
+import '../pages/ss_home.dart'; // Import the SSHomePage
+import '../pages/retirement.dart'; // Import the RetirementPage
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> logout(BuildContext context) async {

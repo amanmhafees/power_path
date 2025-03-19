@@ -6,7 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 // Import your home pages
 import 'home.dart';
-import 'admin_home.dart';
+import '../admin/admin_home.dart';
 import 'ss_home.dart';
 
 class LoginPage extends StatefulWidget {

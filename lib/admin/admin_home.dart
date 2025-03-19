@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'add_employee.dart'; // Import the AddEmployeePage
-import 'login.dart'; // Import the LoginPage
-import 'section_details.dart'; // Import the SectionDetailsPage
+import '../pages/add_employee.dart'; // Import the AddEmployeePage
+import '../pages/login.dart'; // Import the LoginPage
+import '../pages/section_details.dart'; // Import the SectionDetailsPage
 import 'admin_navbar.dart'; // Import the AdminNavbar
-import 'add_section.dart'; // Import the AddSectionPage
+import '../pages/add_section.dart'; // Import the AddSectionPage
 
 class AdminHomePage extends StatefulWidget {
   const AdminHomePage({super.key});

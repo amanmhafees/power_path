@@ -4,7 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'engineer_navbar.dart'; // Import the EngineerNavbar
+import '../widgets/engineer_navbar.dart'; // Import the EngineerNavbar
 
 class AddTransformer extends StatefulWidget {
   final String section;

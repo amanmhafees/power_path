@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'add_employee.dart'; // Import the AddEmployeePage
-import 'add_section.dart'; // Import the AddSectionPage
-import 'create_admin.dart'; // Import the CreateAdminPage
-import 'ss_transfer.dart'; // Import the SSTransferPage
-import 'login.dart'; // Import the LoginPage
+import '../pages/add_employee.dart'; // Import the AddEmployeePage
+import '../pages/add_section.dart'; // Import the AddSectionPage
+import '../pages/create_admin.dart'; // Import the CreateAdminPage
+import '../pages/ss_transfer.dart'; // Import the SSTransferPage
+import '../pages/login.dart'; // Import the LoginPage
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AdminNavbar extends StatelessWidget {

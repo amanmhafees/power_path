@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'engineer_navbar.dart'; // Import the EngineerNavbar
+import '../widgets/engineer_navbar.dart'; // Import the EngineerNavbar
 import 'transformers_maintenance_details.dart'; // Import the TransformerMaintenanceDetailsPage
 
 // Define a custom color scheme
@@ -56,9 +56,10 @@ class MaintenanceDetailsPage extends StatelessWidget {
         foregroundColor: Colors.white,
       ),
       drawer: EngineerNavbar(
-          userName: userName,
-          section: section,
-          currentPage: 'Maintenance Details'), // Add the navbar
+        userName: userName,
+        section: section,
+        currentPage: 'Maintenance Details',
+      ), // Add the navbar
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: _fetchTransformers(),
         builder: (context, snapshot) {

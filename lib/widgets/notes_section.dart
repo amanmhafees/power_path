@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:power_path/app_colors.dart';
+import 'package:power_path/utils/app_colors.dart';
 
-class FaultLogSection extends StatelessWidget {
-  final CollectionReference faultsCollection;
-  final TextEditingController faultController;
-  final Future<void> Function() addFault;
-  final Future<void> Function(String) deleteFault;
+class NotesSection extends StatelessWidget {
+  final CollectionReference notesCollection;
+  final TextEditingController noteController;
+  final Future<void> Function() addNote;
+  final Future<void> Function(String) deleteNote;
 
-  const FaultLogSection({
+  const NotesSection({
     Key? key,
-    required this.faultsCollection,
-    required this.faultController,
-    required this.addFault,
-    required this.deleteFault,
+    required this.notesCollection,
+    required this.noteController,
+    required this.addNote,
+    required this.deleteNote,
   }) : super(key: key);
 
   @override
@@ -30,7 +30,7 @@ class FaultLogSection extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
-              'Fault Log',
+              'Notes',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -41,9 +41,9 @@ class FaultLogSection extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: TextField(
-              controller: faultController,
+              controller: noteController,
               decoration: InputDecoration(
-                hintText: 'Enter fault log notes here...',
+                hintText: 'Enter note here...',
                 hintStyle: TextStyle(color: Colors.grey[400]),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -59,7 +59,7 @@ class FaultLogSection extends StatelessWidget {
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: addFault,
+                onPressed: addNote,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color.fromARGB(255, 255, 255, 255),
                   shape: RoundedRectangleBorder(
@@ -67,24 +67,26 @@ class FaultLogSection extends StatelessWidget {
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
-                child: const Text('Add Fault'),
+                child: const Text('Add Note'),
               ),
             ),
           ),
           StreamBuilder<QuerySnapshot>(
-            stream: faultsCollection.snapshots(),
+            stream: notesCollection
+                .orderBy('timestamp', descending: true)
+                .snapshots(),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return const Center(
                   child: CircularProgressIndicator(),
                 );
               }
-              final faults = snapshot.data!.docs;
+              final notes = snapshot.data!.docs;
               return ListView.builder(
                 shrinkWrap: true,
-                itemCount: faults.length,
+                itemCount: notes.length,
                 itemBuilder: (context, index) {
-                  final fault = faults[index];
+                  final note = notes[index];
                   return Container(
                     margin: const EdgeInsets.symmetric(
                         horizontal: 16.0, vertical: 8.0),
@@ -94,23 +96,35 @@ class FaultLogSection extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
-                          child: Text(
-                            fault['fault'],
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.textDark,
-                            ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                note['note'],
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.textDark,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Posted by ${note['user']}',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        Checkbox(
-                          value: false,
-                          onChanged: (bool? value) {
-                            if (value == true) {
-                              deleteFault(fault.id);
-                            }
+                        IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () {
+                            deleteNote(note.id);
                           },
                         ),
                       ],

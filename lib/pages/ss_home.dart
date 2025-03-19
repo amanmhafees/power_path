@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'login.dart'; // Import the LoginPage
-import 'ss_navbar.dart'; // Import the SSNavbar
+import './login.dart'; // Import the LoginPage
+import '../widgets/ss_navbar.dart'; // Import the SSNavbar
 
 class SSHomePage extends StatefulWidget {
   final String section;

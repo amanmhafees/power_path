@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'home.dart';
 import 'login.dart';
-import 'admin_home.dart'; // Import the AdminHomePage
+import '../admin/admin_home.dart'; // Import the AdminHomePage
 import 'ss_home.dart'; // Import the SSHomePage
 
 class SplashScreen extends StatefulWidget {

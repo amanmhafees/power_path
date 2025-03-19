@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'engineer_navbar.dart'; // Import the EngineerNavbar
-import 'workers_navbar.dart'; // Import the WorkerNavbar
+import '../widgets/engineer_navbar.dart'; // Import the EngineerNavbar
+import '../widgets/workers_navbar.dart'; // Import the WorkerNavbar
 import 'transformers.dart'; // Import the TransformersPage
 
 // Define a custom color scheme

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'firebase_options.dart'; // Import the generated options file
-import 'login.dart';
-import 'home.dart';
-import 'admin_home.dart'; // Import the AdminHomePage
-import 'ss_home.dart'; // Import the SSHomePage
+import 'utils/firebase_options.dart'; // Import the generated options file
+import 'pages/login.dart';
+import 'pages/home.dart';
+import 'admin/admin_home.dart'; // Import the AdminHomePage
+import 'pages/ss_home.dart'; // Import the SSHomePage
 import 'services/notification_service.dart'; // Import the NotificationService
 import 'services/fcm_service.dart'; // Import the FcmService
 import 'package:firebase_messaging/firebase_messaging.dart';

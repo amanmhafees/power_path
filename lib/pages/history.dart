@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'ss_navbar.dart';
+import '../widgets/ss_navbar.dart';
 
 class HistoryPage extends StatelessWidget {
   final String section;

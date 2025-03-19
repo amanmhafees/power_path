@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:power_path/app_colors.dart';
+import 'package:power_path/utils/app_colors.dart';
 
 class MaintenanceDetailsSection extends StatelessWidget {
   final Map<String, dynamic> maintenanceDetails;

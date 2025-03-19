@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
-import 'login.dart'; // Import the LoginPage
-import 'home.dart'; // Import the HomePage
-import 'on_duty.dart'; // Import the OnDutyPage
+import '../pages/login.dart'; // Import the LoginPage
+import '../pages/add_transformer.dart';
+import '../pages/home.dart'; // Import the HomePage
+import '../pages/schedule_maintenance.dart'; // Import the ScheduleMaintenancePage
+import '../pages/maintenance_history.dart'; // Import the MaintenanceDetailsPage
+import '../pages/remove_transformer.dart'; // Import the RemoveTransformerPage
+import '../pages/on_duty.dart'; // Import the OnDutyPage
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> logout(BuildContext context) async {
@@ -14,12 +18,12 @@ Future<void> logout(BuildContext context) async {
   );
 }
 
-class WorkerNavbar extends StatelessWidget {
+class EngineerNavbar extends StatelessWidget {
   final String userName;
   final String section;
   final String currentPage;
 
-  const WorkerNavbar({
+  const EngineerNavbar({
     super.key,
     required this.userName,
     required this.section,
@@ -49,7 +53,7 @@ class WorkerNavbar extends StatelessWidget {
                     radius: 40,
                     backgroundColor: Colors.white,
                     child: Icon(
-                      Icons.person,
+                      Icons.engineering,
                       size: 40,
                       color: Colors.blue.shade700,
                     ),
@@ -75,7 +79,7 @@ class WorkerNavbar extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: const Text(
-                      'Worker',
+                      'Engineer',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 12,
@@ -100,7 +104,8 @@ class WorkerNavbar extends StatelessWidget {
                         MaterialPageRoute(
                           builder: (context) => HomePage(
                             userName: userName,
-                            userType: 'worker',
+                            userType:
+                                'engineer', // Assuming the userType is 'engineer'
                             section: section,
                           ),
                         ),
@@ -109,6 +114,104 @@ class WorkerNavbar extends StatelessWidget {
                     isActive: currentPage == 'Home',
                   ),
                   const Divider(height: 1),
+                  const Padding(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    child: Text(
+                      'MANAGEMENT',
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.0,
+                      ),
+                    ),
+                  ),
+                  _buildNavItem(
+                    context: context,
+                    icon: Icons.add,
+                    title: 'Add New Transformer',
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AddTransformer(
+                              section: section, userName: userName),
+                        ),
+                      );
+                    },
+                    isActive: currentPage == 'Add New Transformer',
+                  ),
+                  _buildNavItem(
+                    context: context,
+                    icon: Icons.business,
+                    title: 'Sections',
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => HomePage(
+                            userName: userName,
+                            userType:
+                                'engineer', // Assuming the userType is 'engineer'
+                            section: section,
+                          ),
+                        ),
+                      );
+                    },
+                    isActive: currentPage == 'Home',
+                  ),
+                  _buildNavItem(
+                    context: context,
+                    icon: Icons.schedule,
+                    title: 'Schedule Maintenance',
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ScheduleMaintenancePage(
+                            userName: userName,
+                            section: section,
+                          ),
+                        ),
+                      );
+                    },
+                    isActive: currentPage == 'Schedule Maintenance',
+                  ),
+                  _buildNavItem(
+                    context: context,
+                    icon: Icons.list,
+                    title: 'Maintenance Details',
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MaintenanceDetailsPage(
+                            section: section,
+                            userName: userName,
+                          ),
+                        ),
+                      );
+                    },
+                    isActive: currentPage == 'Maintenance Details',
+                  ),
+                  _buildNavItem(
+                    context: context,
+                    icon: Icons.delete,
+                    title: 'Remove Transformer',
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => RemoveTransformerPage(
+                            section: section,
+                            userName: userName,
+                          ),
+                        ),
+                      );
+                    },
+                    isActive: currentPage == 'Remove Transformer',
+                  ),
                   _buildNavItem(
                     context: context,
                     icon: Icons.work,
@@ -118,8 +221,8 @@ class WorkerNavbar extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (context) => OnDutyPage(
-                            userName: userName,
                             section: section,
+                            userName: userName,
                           ),
                         ),
                       );

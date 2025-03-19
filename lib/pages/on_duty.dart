@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'engineer_navbar.dart';
-import 'workers_navbar.dart';
+import '../widgets/engineer_navbar.dart';
+import '../widgets/workers_navbar.dart';
 
 class OnDutyPage extends StatefulWidget {
   final String section;

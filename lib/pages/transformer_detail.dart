@@ -3,10 +3,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:power_path/services/get_service_key.dart';
 import 'package:power_path/services/notification_service.dart';
-import 'package:power_path/app_colors.dart';
-import 'package:power_path/maintenance_details.dart';
-import 'package:power_path/fault_log.dart';
-import 'package:power_path/notes_section.dart';
+import 'package:power_path/utils/app_colors.dart';
+import 'package:power_path/widgets/maintenance_details.dart';
+import 'package:power_path/widgets/fault_log.dart';
+import 'package:power_path/widgets/notes_section.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class TransformerDetailPage extends StatefulWidget {

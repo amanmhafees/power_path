@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'engineer_navbar.dart'; // Import the EngineerNavbar
+import '../widgets/engineer_navbar.dart'; // Import the EngineerNavbar
 
 class RemoveTransformerPage extends StatefulWidget {
   final String section;
