@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:power_path/services/get_service_key.dart';
+import 'package:power_path/services/get_server_key.dart';
 import 'package:power_path/services/notification_service.dart';
 import 'package:power_path/utils/app_colors.dart';
 import 'package:power_path/widgets/maintenance_details.dart';
 import 'package:power_path/widgets/fault_log.dart';
 import 'package:power_path/widgets/notes_section.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:power_path/services/get_server_key.dart';
+// Import the GetServerKey class
 
 class TransformerDetailPage extends StatefulWidget {
   final Map<String, dynamic> transformer;
@@ -155,8 +160,13 @@ class _TransformerDetailPageState extends State<TransformerDetailPage> {
 
   Future<void> _addFault() async {
     final String fault = _faultController.text.trim();
+    final prefs = await SharedPreferences.getInstance();
+    final String userName = prefs.getString('userName') ?? 'Unknown User';
+    final String section = prefs.getString('section') ?? 'Unknown Section';
     if (fault.isNotEmpty) {
       await faultsCollection.add({'fault': fault});
+      await _sendNotificationToSection(
+          section, '$fault', userName, 'Fault Logged');
       _faultController.clear();
     }
   }
@@ -179,6 +189,62 @@ class _TransformerDetailPageState extends State<TransformerDetailPage> {
       });
       _noteController.clear();
       // _sendPushNotification(note, userName, section);
+
+      await _sendNotificationToSection(section, '$note', userName, 'New Note');
+    }
+  }
+
+  // Sending notification to all employees in the same section
+  Future<void> _sendNotificationToSection(
+      String section, String message, String userName, String Title) async {
+    final querySnapshot = await FirebaseFirestore.instance
+        .collection('employees')
+        .where('section', isEqualTo: section)
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      final GetServerKey getServerKey = GetServerKey();
+      String accessToken =
+          await getServerKey.getServerKeyToken(); // Get OAuth 2.0 access token
+
+      const String fcmUrl =
+          "https://fcm.googleapis.com/v1/projects/power-path-c1bb4/messages:send";
+
+      for (var employeeDoc in querySnapshot.docs) {
+        final fcmToken = employeeDoc['fcmToken'];
+        if (fcmToken != null) {
+          final Map<String, dynamic> notificationData = {
+            "message": {
+              "token": fcmToken,
+              "notification": {
+                "title": "$Title by $userName",
+                "body": "$message on ${widget.transformer['name']}",
+              },
+              "data": {
+                "click_action": "FLUTTER_NOTIFICATION_CLICK",
+                "id": "1",
+              }
+            }
+          };
+
+          final response = await http.post(
+            Uri.parse(fcmUrl),
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization":
+                  "Bearer $accessToken", // Use OAuth 2.0 access token
+            },
+            body: jsonEncode(notificationData),
+          );
+
+          if (response.statusCode == 200) {
+            print("Notification sent successfully to ${employeeDoc['name']}");
+          } else {
+            print(
+                "Failed to send notification to ${employeeDoc['name']}: ${response.body}");
+          }
+        }
+      }
     }
   }
 

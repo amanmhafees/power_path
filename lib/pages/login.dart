@@ -3,6 +3,7 @@ import 'package:crypto/crypto.dart';
 import 'dart:convert'; // for the utf8.encode method
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 // Import your home pages
 import 'home.dart';
@@ -41,6 +42,8 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     try {
+      final fcmToken = await FirebaseMessaging.instance.getToken();
+
       if (_isAdmin) {
         // Admin login check - Replace with your Firebase code
         FirebaseFirestore.instance
@@ -63,6 +66,12 @@ class _LoginPageState extends State<LoginPage> {
               await prefs.setString('userName', 'admin');
               await prefs.setString(
                   'section', 'admin'); // Assuming admin section
+
+              // Save FCM token to Firestore
+              await FirebaseFirestore.instance
+                  .collection('admins')
+                  .doc(adminDoc.id)
+                  .update({'fcmToken': fcmToken});
 
               Navigator.pushReplacement(
                 context,
@@ -111,6 +120,12 @@ class _LoginPageState extends State<LoginPage> {
               await prefs.setString('section', section);
               await prefs.setString(
                   'designation', designation); // Save designation
+
+              // Save FCM token to Firestore
+              await FirebaseFirestore.instance
+                  .collection('employees')
+                  .doc(employeeDoc.id)
+                  .update({'fcmToken': fcmToken});
 
               if (designation == 'System Supervisor') {
                 Navigator.pushReplacement(

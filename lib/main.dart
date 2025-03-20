@@ -9,6 +9,7 @@ import 'pages/ss_home.dart'; // Import the SSHomePage
 import 'services/notification_service.dart'; // Import the NotificationService
 import 'services/fcm_service.dart'; // Import the FcmService
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'services/firebase_api.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseBackgroundHandler(RemoteMessage message) async {
@@ -30,13 +31,9 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  /*Future<void> init(BuildContext context) async {
-    NotificationService().requestNotificationPermission();
-    await NotificationService().getDeviceToken();
-    NotificationService().firebaseInit(context);
-    NotificationService().setupInteractMessage(context);
-    FcmService.firebaseInit();
-  }*/
+  Future<void> init(BuildContext context) async {
+    await FirebaseApi().initNotifications();
+  }
 
   Future<Widget> _getInitialScreen() async {
     final prefs = await SharedPreferences.getInstance();
@@ -70,7 +67,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //init(context); // Initialize notification settings
+    init(context); // Initialize notification settings
 
     return FutureBuilder<Widget>(
       future: _getInitialScreen(),
