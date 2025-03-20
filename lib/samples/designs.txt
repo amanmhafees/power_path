@@ -11,3 +11,6 @@
                     </intent-filter>
                 </receiver>
                 <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+
+//to be done when security isuue came
+git filter-repo --path lib/services/get_server_key.dart --invert-paths --force
