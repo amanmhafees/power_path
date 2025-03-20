@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:power_path/services/get_server_key.dart';
-import 'package:power_path/services/notification_service.dart';
 import 'package:power_path/utils/app_colors.dart';
 import 'package:power_path/widgets/maintenance_details.dart';
 import 'package:power_path/widgets/fault_log.dart';
@@ -11,7 +10,6 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:power_path/services/get_server_key.dart';
 // Import the GetServerKey class
 
 class TransformerDetailPage extends StatefulWidget {
