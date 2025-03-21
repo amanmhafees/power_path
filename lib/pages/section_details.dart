@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:crypto/crypto.dart';
+import 'dart:convert';
 
 class SectionDetailsPage extends StatefulWidget {
   final String sectionId;
@@ -51,6 +53,9 @@ class _SectionDetailsPageState extends State<SectionDetailsPage> {
               'id': doc['id'],
               'name': doc['name'],
               'designation': doc['designation'],
+              'employeeId':
+                  doc['id'], // Fetch the employee ID from the document
+              'documentId': doc.id, // Store the document ID
             })
         .toList();
   }
@@ -60,6 +65,49 @@ class _SectionDetailsPageState extends State<SectionDetailsPage> {
       _sectionFuture = _fetchSectionDetails();
       _employeesFuture = _fetchEmployees();
     });
+  }
+
+  Future<void> _resetPassword(String documentId) async {
+    final String newPassword = 'Temp@123';
+    final String hashedPassword =
+        sha256.convert(utf8.encode(newPassword)).toString();
+
+    await FirebaseFirestore.instance
+        .collection('employees')
+        .doc(documentId)
+        .update({'password': hashedPassword});
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Password reset to Temp@123')),
+    );
+  }
+
+  void _showResetPasswordDialog(String documentId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Reset Password'),
+          content: const Text(
+              'Are you sure you want to reset the password for this employee?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                _resetPassword(documentId);
+                Navigator.of(context).pop();
+              },
+              child: const Text('Confirm'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -288,7 +336,7 @@ class _SectionDetailsPageState extends State<SectionDetailsPage> {
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
-                                        'ID: ${employee['id']}',
+                                        'ID: ${employee['employeeId']}', // Display the employee ID
                                         style: const TextStyle(
                                           fontSize: 14,
                                           color: Colors.grey,
@@ -316,6 +364,12 @@ class _SectionDetailsPageState extends State<SectionDetailsPage> {
                                       ),
                                     ],
                                   ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.lock_reset),
+                                  onPressed: () => _showResetPasswordDialog(
+                                      employee['documentId']),
+                                  tooltip: 'Reset Password',
                                 ),
                               ],
                             ),

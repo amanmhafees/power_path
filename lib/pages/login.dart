@@ -127,7 +127,10 @@ class _LoginPageState extends State<LoginPage> {
                   .doc(employeeDoc.id)
                   .update({'fcmToken': fcmToken});
 
-              if (designation == 'System Supervisor') {
+              if (password == 'Temp@123') {
+                _showChangePasswordDialog(
+                    employeeDoc.id, name, designation, section);
+              } else if (designation == 'System Supervisor') {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
@@ -168,6 +171,121 @@ class _LoginPageState extends State<LoginPage> {
         _errorMessage = 'Error: $e';
       });
     }
+  }
+
+  void _showChangePasswordDialog(
+      String employeeId, String name, String designation, String section) {
+    final TextEditingController newPasswordController = TextEditingController();
+    final TextEditingController confirmPasswordController =
+        TextEditingController();
+    String errorMessage = '';
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Change Password'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: newPasswordController,
+                    decoration: const InputDecoration(
+                      labelText: 'New Password',
+                    ),
+                    obscureText: true,
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: confirmPasswordController,
+                    decoration: const InputDecoration(
+                      labelText: 'Confirm Password',
+                    ),
+                    obscureText: true,
+                  ),
+                  if (errorMessage.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(
+                        errorMessage,
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    final newPassword = newPasswordController.text.trim();
+                    final confirmPassword =
+                        confirmPasswordController.text.trim();
+
+                    if (newPassword.isEmpty || confirmPassword.isEmpty) {
+                      setState(() {
+                        errorMessage = 'Please enter both fields';
+                      });
+                      return;
+                    }
+
+                    if (newPassword != confirmPassword) {
+                      setState(() {
+                        errorMessage = 'Passwords do not match';
+                      });
+                      return;
+                    }
+
+                    if (!_isValidPassword(newPassword)) {
+                      setState(() {
+                        errorMessage =
+                            'Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character';
+                      });
+                      return;
+                    }
+
+                    final hashedNewPassword = hashPassword(newPassword);
+
+                    await FirebaseFirestore.instance
+                        .collection('employees')
+                        .doc(employeeId)
+                        .update({'password': hashedNewPassword});
+
+                    Navigator.of(context).pop();
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => HomePage(
+                                userName: name,
+                                userType: designation
+                                        .toLowerCase()
+                                        .contains('engineer')
+                                    ? 'engineer'
+                                    : 'worker',
+                                section: section,
+                              )),
+                    );
+                  },
+                  child: const Text('Change Password'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  bool _isValidPassword(String password) {
+    final passwordRegExp = RegExp(
+        r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$');
+    return passwordRegExp.hasMatch(password);
   }
 
   @override

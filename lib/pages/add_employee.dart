@@ -14,7 +14,6 @@ class AddEmployeePage extends StatefulWidget {
 class _AddEmployeePageState extends State<AddEmployeePage> {
   final TextEditingController _idController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   List<String> sections = [];
@@ -91,8 +90,8 @@ class _AddEmployeePageState extends State<AddEmployeePage> {
           return;
         }
 
-        // Hash the password
-        var bytes = utf8.encode(_passwordController.text); // data being hashed
+        // Set default password to Temp@123 and hash it
+        var bytes = utf8.encode('Temp@123'); // data being hashed
         var digest = sha256.convert(bytes);
 
         // Save to database
@@ -104,7 +103,9 @@ class _AddEmployeePageState extends State<AddEmployeePage> {
           'designation': selectedDesignation,
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Employee added successfully.')),
+          const SnackBar(
+              content: Text(
+                  'Employee added successfully. Default password is Temp@123')),
         );
         form.reset();
       }
@@ -193,30 +194,6 @@ class _AddEmployeePageState extends State<AddEmployeePage> {
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please enter a name';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 16),
-                        TextFormField(
-                          controller: _passwordController,
-                          decoration: InputDecoration(
-                            labelText: 'Password',
-                            prefixIcon:
-                                const Icon(Icons.lock, color: Colors.blue),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(
-                                  color: Colors.blue, width: 2),
-                            ),
-                          ),
-                          obscureText: true,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter a password';
                             }
                             return null;
                           },
