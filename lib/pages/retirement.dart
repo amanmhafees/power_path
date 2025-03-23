@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_search/dropdown_search.dart';
+import '../widgets/ss_navbar.dart'; // Import the SSNavbar
 
 class RetirementPage extends StatefulWidget {
   final String supervisorSection;
@@ -79,6 +80,10 @@ class _RetirementPageState extends State<RetirementPage> {
         centerTitle: true,
         foregroundColor: Colors.white,
       ),
+      drawer: SSNavbar(
+        section: widget.supervisorSection,
+        currentPage: "Retirement",
+      ), // Add the SSNavbar
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(

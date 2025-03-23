@@ -96,8 +96,7 @@ class _LoginPageState extends State<LoginPage> {
         // Employee login check - Replace with your Firebase code
         FirebaseFirestore.instance
             .collection('employees')
-            .where('id',
-                isEqualTo: id) // Employee ID is likely stored as a number
+            .where('id', isEqualTo: id)
             .limit(1)
             .get()
             .then((snapshot) async {
@@ -110,6 +109,14 @@ class _LoginPageState extends State<LoginPage> {
               final designation = employeeDoc['designation'];
               final section = employeeDoc['section'];
               final name = employeeDoc['name'];
+              final status = employeeDoc['status'];
+
+              if (status == 'retired') {
+                setState(() {
+                  _errorMessage = 'You are retired and cannot log in anymore.';
+                });
+                return;
+              }
 
               // Save login state
               final prefs = await SharedPreferences.getInstance();

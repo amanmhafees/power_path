@@ -96,7 +96,10 @@ class HistoryPage extends StatelessWidget {
         automaticallyImplyLeading: true, // Ensure the back button is shown
         foregroundColor: Colors.white,
       ),
-      drawer: SSNavbar(section: section), // Pass the section to SSNavbar
+      drawer: SSNavbar(
+        section: section,
+        currentPage: "Past employees",
+      ), // Pass the section to SSNavbar
       body: FutureBuilder<List<Map<String, String>>>(
         future: fetchPastEmployees(section),
         builder: (context, snapshot) {

@@ -79,7 +79,10 @@ class _SSHomePageState extends State<SSHomePage> with WidgetsBindingObserver {
           ),
         ],
       ),
-      drawer: SSNavbar(section: widget.section), // Pass the section to SSNavbar
+      drawer: SSNavbar(
+        section: widget.section,
+        currentPage: "Home",
+      ), // Pass the section to SSNavbar
       body: FutureBuilder<Map<String, List<Map<String, String>>>>(
         future: _futureEmployees,
         builder: (context, snapshot) {
@@ -99,6 +102,10 @@ class _SSHomePageState extends State<SSHomePage> with WidgetsBindingObserver {
                 final employees = entry.value;
                 return Card(
                   margin: const EdgeInsets.symmetric(vertical: 8.0),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  elevation: 4,
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
@@ -109,13 +116,35 @@ class _SSHomePageState extends State<SSHomePage> with WidgetsBindingObserver {
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
+                            color: Colors.blue,
                           ),
                         ),
+                        const Divider(color: Colors.blue),
                         const SizedBox(height: 8),
                         ...employees.asMap().entries.map((entry) {
                           final index = entry.key + 1;
                           final employee = entry.value;
-                          return Text('$index. ${employee['name']!}');
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4.0),
+                            child: Row(
+                              children: [
+                                CircleAvatar(
+                                  backgroundColor: Colors.blue.shade700,
+                                  child: Text(
+                                    employee['name']![0].toUpperCase(),
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Text(
+                                    '$index. ${employee['name']!}',
+                                    style: const TextStyle(fontSize: 16),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
                         }).toList(),
                       ],
                     ),

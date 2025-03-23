@@ -116,7 +116,7 @@ class _TransferPageState extends State<TransferPage> {
       // Add to section history
       await FirebaseFirestore.instance.collection('section_history').add({
         'employee_id': selectedEmployee?['id'],
-        'section': currentSection,
+        'old_section': currentSection,
         'new_section': newSectionId,
         'transfer_date': now,
       });
@@ -164,7 +164,9 @@ class _TransferPageState extends State<TransferPage> {
           ),
         ),
         drawer: SSNavbar(
-            section: widget.supervisorSection), // Pass the section to SSNavbar
+          section: widget.supervisorSection,
+          currentPage: "Transfer",
+        ), // Pass the section to SSNavbar
         body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
